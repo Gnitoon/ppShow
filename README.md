@@ -9,6 +9,8 @@ Special credits to twitch.tv/omeiaum for the idea, i just coded it
 
 ## BASIC USAGE:
 
+### If don't want to download just reach at [homepage](https://pp-show.vercel.app) and start using!
+
 1. Dowload both tmi.js and ppShow.html
 	* OR clone the repo (click on code -> download zip)
 	* OR go to [Releases](https://github.com/Gnitoon/ppShow/releases) and download the latest
@@ -44,8 +46,6 @@ _these options are available to change directly in the code, look at the object 
 https://user-images.githubusercontent.com/80431627/110715426-fbfaa980-81e3-11eb-951f-cb03c3c89904.mp4
 ![](https://user-images.githubusercontent.com/80431627/110715426-fbfaa980-81e3-11eb-951f-cb03c3c89904.mp4)
 
-
-
 ## IMPORTANT NOTICE:
 Both options 'zero after messages' and 'min. mentions' affect how often they will appear on screen keeping low values (ex: -1 and 5) in both will make it change faster.
 This will depend on chat speed,
@@ -56,6 +56,18 @@ This will depend on chat speed,
 For most cases 5~ and 20~ will be good for 'emote bursts'
 <br>
 That is, zero the count every 20 messages and if have more than 5 mentions show it
+
+## Known issues
+* Image not being redrawn sometimes - Emote not change in canvas on Firefox
+* No support to Edge legacy
+
+## Why everything in one file (HTML, Js, CSS)?
+Easier to distribute, better just download one file and open it. And i could just copy and paste the entire code to update without starting a local git repo.
+
+_now, really, don't do that for larger projects. cases like this, a small application is 'fine' i guess, but don't do that if is not needed._
+
+_i do not code like that always._
+
 
 ## Credits:
 * <a href="https://twitch.tv/omeiaum" target="_blank" class="link">oMeiaUm</a>

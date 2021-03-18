@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" prefix="og: https://ogp.me/ns#">
+<html lang="en" prefix="og: https://ogp.me/">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +8,11 @@
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
 
     <meta name="description" content="show most used emotes from any twitch channel">
-    
+    <meta name="keywords" content="bttv%20emotes,emotes,top%20emote,most%20used%20emote,twitch%20chat%20most%20used%20emotes">
+
+    <!-- older version available in /archive/ppShow<version>.html, example: .../archive/ppShow100.html -->
+    <meta name="version" content="1.0.1">
+
     <!-- open graph tags -->
     <meta property="og:title" content="ppShow">
     <meta property="og:description" content="show most used emotes from any twitch channel">
@@ -18,6 +22,8 @@
     <meta property="og:url" content="https://pp-show.vercel.app">
     <meta property="og:image" content="https://pp-show.vercel.app/icon.png">
     
+    <link rel="manifest" href="/manifest.json">
+
     <!-- font Source Sand pro -->
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap" rel="stylesheet">
@@ -35,8 +41,6 @@
     </script>
 
     <script>
-
-
         var debug = false;
         /**
          * @description wraps console.log() to show only if debug = true 
@@ -331,6 +335,15 @@
             width: auto;
         }
 
+        .title{
+            color: var(--text-light);
+            font-size: 105%;
+        }
+        .subtitle{
+            color: var(--text-light);
+            font-size: 100%;
+        }
+
     </style>
 </head>
 <body class="dark">
@@ -345,11 +358,11 @@
             class="popup-container"
             v-if="status == 'disconnected' || showOptions"
             :style="{
-                'z-index': status == 'disconnected' && !showOptions ? '-1' : '0'
+                'z-index': status == 'disconnected' && !showOptions && !hasNews ? '-1' : '0'
             }"
         >
             <div class="popup-sub">
-                <div class="notice" v-if="status == 'disconnected' && !showOptions">
+                <div class="notice" v-if="status == 'disconnected' && !showOptions && !hasNews">
                     Hi
                     <br>
                     this is a simple site/page to show most used emote in a channel from twitch.tv
@@ -387,6 +400,9 @@
                                 min="-1"
                                 @change="saveLocal('miMentions', $event.target.value)"
 
+                                @focus="inFocus"
+                                @blur="inBlur"
+
                             >
                             <br>
                             <i>Only change the displayed emote if have more than X mentions</i>
@@ -405,6 +421,9 @@
                                 placeholder="100"
                                 min="-1"
                                 @change="saveLocal('msgTreshold', $event.target.value)"
+
+                                @focus="inFocus"
+                                @blur="inBlur"
                             >
                             <br>
                             <i>this will help to use only most recent ones</i>
@@ -421,6 +440,9 @@
                                 id="theme"
                                 v-model="options.theme"
                                 @change="saveLocal('theme', $event.target.value)"
+
+                                @focus="inFocus"
+                                @blur="inBlur"
                             >
                                 <option
                                     v-for="th of enums.themes"
@@ -441,6 +463,9 @@
                                 id="esiz"
                                 v-model="options.size"
                                 @change="saveLocal('size', $event.target.value)"
+
+                                @focus="inFocus"
+                                @blur="inBlur"
                             >
                                 <option
                                     v-for="th of enums.sizes"
@@ -457,6 +482,9 @@
                                 type="checkbox"
                                 v-model="options.connectOnLoad"
                                 @change="saveLocal('connectOnLoad', $event.target.checked)"
+
+                                @focus="inFocus"
+                                @blur="inBlur"
                             >
                             <label for="autocon">Auto connect on open</label>
                             <br>
@@ -470,6 +498,9 @@
                                 id="deb"
                                 v-model="options.dvdStand"
                                 @change="saveLocal('dvdStand', $event.target.checked)"
+
+                                @focus="inFocus"
+                                @blur="inBlur"
                             >
                             <label for="deb">DVD stand-by bouncing</label>
                             <br>
@@ -478,6 +509,9 @@
                                 id="dirtyCanvas"
                                 v-model="options.dirtyCanvas"
                                 @change="saveLocal('dirtyCanvas', $event.target.checked)"
+
+                                @focus="inFocus"
+                                @blur="inBlur"
                             >
                             <label for="dirtyCanvas">Don't clear canvas</label>
                             <br>
@@ -492,6 +526,9 @@
                                 min="0"
                                 step="0.1"
                                 @change="saveLocal('dvdspeedX', $event.target.value)"
+
+                                @focus="inFocus"
+                                @blur="inBlur"
                             >
                             <input
                                 type="number"
@@ -502,6 +539,9 @@
                                 min="0"
                                 step="0.1"
                                 @change="saveLocal('dvdspeedY', $event.target.value)"
+
+                                @focus="inFocus"
+                                @blur="inBlur"
                             >
                             <br>
                             <i>RNG multiplier: Multiplied by a random number to change the direction a bit</i>
@@ -515,11 +555,34 @@
                                 min="0"
                                 step="0.1"
                                 @change="saveLocal('spRngMultip', $event.target.value)"
+
+                                @focus="inFocus"
+                                @blur="inBlur"
                             >
                             <br>
                             <i>make it like a good ol' dvd</i>
                         </div>
                         
+
+                        <!-- hotkeys -->
+                        <div class="op-item">
+                            <input
+                                type="checkbox"
+                                id="deb"
+                                v-model="options.enableHotkeys"
+                                @change="saveLocal('enableHotkeys', $event.target.checked)"
+
+                                @focus="inFocus"
+                                @blur="inBlur"
+                            >
+                            <label for="deb">Hotkeys</label>
+                            <br>
+                            <i>use keyboard to make some things easier!</i>
+                            <br>
+                            <i>Full list at the very bottom, scroll it down...</i>
+                            <br>
+                            <i>only applies if NO INPUT IS FOCUSED (text fields, checkbox...)</i>
+                        </div>
 
                         <!-- toggle debug, showing things on devTools console -->
                         <div class="op-item">
@@ -528,6 +591,9 @@
                                 id="deb"
                                 v-model="options.debug"
                                 @change="saveLocal('debug', $event.target.checked)"
+
+                                @focus="inFocus"
+                                @blur="inBlur"
                             >
                             <label for="deb">Debug</label>
                             <br>
@@ -538,7 +604,7 @@
 
 
                         <i>
-                            <br> IMPORTANT NOTICE:
+                            <br> <b class="subtitle">IMPORTANT NOTICE:</b>
                             <br> Both 'zero after messages' and 'min. mentions' affect how often they will
                             appear on screen keeping low values (ex: -1 and 5) in both will make it
                             change faster.
@@ -554,11 +620,11 @@
 
                         <br>                            
                         <br>
-                        LICENSE: <a href="https://opensource.org/licenses/MIT" target="_blank" class="link">MIT</a>
+                        <a class="subtitle">LICENSE:</a> <a href="https://opensource.org/licenses/MIT" target="_blank" class="link">MIT</a>
                         
                         <br>
                         <br>
-                        Credits:
+                        <b class="subtitle">Credits:</b>
                         <br> <a href="https://twitch.tv/omeiaum" target="_blank" class="link">oMeiaUm</a>
                         <br> <a href="https://vuejs.org/" target="_blank" class="link">Vue.js</a> framework
                         <br> <a href="https://tmijs.com/" target="_blank" class="link">tmijs package</a> (to connect with twitch chat)
@@ -569,9 +635,10 @@
 
                         <br>
                         <br>
-                        <b>BASIC USAGE: </b>
+                        <b class="title">BASIC USAGE: </b>
                         <br>
-                        Connect: <br>
+                        <b class="subtitle">Connect:</b>
+                        <br>
                         -> Type the twitch channel name in the top-right input field and click connect.
                         <br>
                         <br>
@@ -580,17 +647,63 @@
 
                         <br>
                         <br>
-                        'DVD Mode'? <br>
+                        <b class="subtitle">'DVD Mode'?</b>
+                        <br>
                         -> Bounce the image on screen sides, just like the dvd logo, but with emotes
                         <br>
                         -> Click on options and mark the "DVD Stant-by bouncing" to enable
                         <br>
                         -> Mark "Don't clear canvas" to keep the path as the image moves
 
+
+                        <br>
+                        <br>
+                        <b class="subtitle">Hotkeys</b>
+                        <br>
+                        -> Esc to close Update messsage card and options
+                        <br>
+                        -> 'o' to show/hide options
+                        <br>
+                        -> 'h' to show/hide connection info and message
+                        <br>
+                        -> 'c' to connect/disconnect
+                        <br>
+                        <i>you will be propted to comfirm disconnect</i>
+
                     </div>
                 </div>
+
+
+                <!-- Good News Everyone -->
+                <div class="whatsnew options" v-if="hasNews" :style="{display: optionsDisplay, 'z-index': '1'}">
+                    <div class="op-header">
+                        <a>Updated to version {{version.v}}!</a>
+                        <button @click="saveLocal('whatsnewClosed', version.v)">X</button>
+                    </div>
+                    <div class="op-items">
+                        <i>{{version.date}}</i>
+                        <br>
+                        <br>
+                        <a class="title">{{version.title}}</a>
+                        <br>
+                        <br>
+                        <b class="title">Changes</b>
+                        <p v-for="infoLine of version.info">{{infoLine}}</p>
+                        <!-- {{version.info}} -->
+                        <br>
+                        <br>
+                        see more @ <a href="https://github.com/Gnitoon/ppShow/releases/" target="_blank" class="link">releases on github</a>
+                        <br>
+                        found a bug or want to send feedback? reach out and <a href="https://github.com/Gnitoon/ppShow/issues/" target="_blank" class="link">open an issue on github!</a>
+                    </div>
+
+                </div>
+
             </div>
         </div>
+
+
+
 
         <!-- connection info and last received message -->
         <div class="msg-container">
@@ -632,6 +745,8 @@
                 type="text"
                 v-model="options.channel"
                 @keypress.enter="connector"
+                @focus="inFocus"
+                @blur="inBlur"
                 @change="saveLocal('channel', $event.target.value)"
                 placeholder="channel"
                 :style="err.paintBorder ? {
@@ -646,13 +761,18 @@
             <a class="not-link err-text" v-if="err.type == 'user_err'" :style="err.style">{{err.msg}}</a>
         </div>
 
+        <!-- actual image, centered -->
         <div id="img-container">
             <img v-if="!options.dvdStand" :src="emoteImgSrc" id="emoteIMG" :style="{
                 transform: 'scale('+ (+options.size.slice(0,1) + 1) +')'
             }">
         </div>
 
-        
+        <!-- 
+            <br> tag is not the best to space i know,
+            but when you are tired or don't want to mess with css
+            is a pretty good way i guess 
+        -->
 
     </div>
 
@@ -707,6 +827,15 @@
                     // color theme (dark or light)
                     theme: "dark",
 
+                    // save the last seen version number 
+                    whatsnewClosed: '1.0.0',
+
+                    // the last time you changed a option
+                    lastUpdated: Date.now(),
+
+                    // enable keyboard shortcuts
+                    enableHotkeys: true,
+
                 },
 
                 messageCount: 0,
@@ -715,6 +844,32 @@
                 optionsDisplay: "none",
                 status: "disconnected",
                 // emoteImgSrc: nothing,
+
+                // new version stuff
+                hasNews: false,
+                version: {
+                    v: '1.0.1',
+                    date: '2021/Mar/17',
+
+                    // just for the meme idk.
+                    title: 'Now with 30% more artificial sugar!',
+
+                    // changes list/description
+                    info: [
+                        "+ Added this news card!",
+                        "+ Hotkeys:",
+                        "(can be disabled in options)",
+                        "____ 'Esc' to close popups (options and news)",
+                        "____ 'o' to show/hide options",
+                        "____ 'c' to connect/disconnect",
+                        "____ 'h' to show/hide connection info",
+                        "____ 'n' to show/hide news announcement card (this popup)",
+                        "+ Added version meta tag",
+                        "+ Saving the date and time when an option is changed",
+                        "+ Some more comments in the code, might help if want to know how it works",
+                        "-> Added webmanifest and Open Graph meta tags (enable search engines and social media to display a preview with title, image, description...), basically SEO"
+                    ],
+                },
 
                 // enumerators
                 enums: {
@@ -858,6 +1013,13 @@
                             debug = this.options.debug
                         }
 
+                        // show news announdement if version isn't the samae saves in localStorage
+                        if(this.version.v != this.options.whatsnewClosed){
+                            this.hasNews = true;
+                            dbug(`new version! ${this.options.whatsnewClosed} -> ${this.version.v}[${this.version.date}]`)
+                        }
+                        
+
                         // if isn't connected and connect on load is enabled, connect
                         if(this.status == "disconnected" && this.options.connectOnLoad){
                             dbug("connection on load is ENABLED, connecting...")
@@ -889,6 +1051,7 @@
                     }
                 }
 
+                // dvd-mode position, speed and thingies
                 let dvdMdEl = document.getElementById('dvd-like')
                 this.dvdMode = {
                     dvdMdEl,
@@ -907,14 +1070,80 @@
                     }
                 }
 
+                // start dvd mode if was enable in options
                 if(this.status == "connected" && this.options.dvdStand){
                     this.dvStart()
                 }
 
+                // keypress listener to do actions with keyboard
+                document.addEventListener('keydown', (e) => {
+                    let keyActions = {
+                        // close 
+                        'Escape': (e) => {
+                            if(this.showOptions){
+                                this.showOptions = false;
+                            }
+                            else if(this.hasNews){
+                                this.hasNews = false;
+                                this.saveLocal('whatsnewClosed', this.version.v);
+                            }
+                        },
+                        // o to show/hide options
+                        "o": (e) => {
+                            this.showOptions = !this.showOptions;
+                        },
+                        // c to connect/disconnect
+                        "c": (e) => {
+                            if(this.status == "connected"){
+                                if(confirm("hotkey pressed, disconnect?\n\nhotkeys available in options")){
+                                    this.connector();
+                                }
+                                else {
+                                    dbug("disconnect-by-hotkey canceled")
+                                }
+                            }
+                            else {
+                                this.connector();
+                            }
+                        },
+                        // show/hide connection info
+                        "h": (e) => {
+                            this.infoHidden = !this.infoHidden;
+                        },
+                        // news announcement card
+                        "n": (e) => {
+                            this.hasNews = !this.hasNews;
+                        },
+                    }
+
+                    if(!this.inputFocused && this.options.enableHotkeys){
+                        // get the pressed key and call the function
+                        let key = e.key;
+                        
+
+                        if(key in keyActions){
+                            keyActions[key](e)
+                            dbug(`key pressed: ${key}, action available`)
+                        }
+                        else{
+                            dbug(`key pressed: ${key}, action UN-available`)
+
+                        }
+                    }
+
+                })
+
+
                 
             },
             methods:{
-                
+                inFocus(){
+                    this.inputFocused = true
+                },
+                inBlur(){
+                    this.inputFocused = false
+                },
+
                 /**
                  * @description save options to browser localStorage
                  * boolean values as string get parsed before saving
@@ -924,6 +1153,7 @@
                 */
                 saveLocal(key, value){
                     dbug("option changed: ", key, value);
+                    this.options.lastUpdated = Date.now();
                     // parse as boolean on true/false string
                     if (value == "true" || value == "false") { value = ('' + value) == "true" }
                     // if(key == "channel"){
@@ -953,6 +1183,9 @@
                             if(this.status == "connected" && value){
                                 this.dvStart()
                             }
+                        },
+                        "whatsnewClosed": () => {
+                            this.hasNews = false
                         },
                     }
 

@@ -3,7 +3,7 @@ show most used emotes of twitch chat
 
 Special credits to twitch.tv/omeiaum for the idea, i just coded it
 <br>
-<i>'dvd mode' may now work properly in Firefox, please prefer chromium based browsers (like Chrome)</i>
+<i>'dvd mode' may NOT work properly in Firefox, please prefer chromium based browsers (like Chrome)</i>
 <br> TY <3
 
 
@@ -11,9 +11,12 @@ Special credits to twitch.tv/omeiaum for the idea, i just coded it
 
 ### If don't want to download just reach at [homepage](https://pp-show.vercel.app) and start using!
 
-1. Dowload both tmi.js and ppShow.html
+1. Dowload both tmi.js, manifest.json and ppShow.html
 	* OR clone the repo (click on code -> download zip)
 	* OR go to [Releases](https://github.com/Gnitoon/ppShow/releases) and download the latest
+
+_manifest is not required, but if you want to host it somewhere it will enable some PWA features_
+
 
 2. Open the ppShow.html with your browser
 3. type the channel name in the input and click "connect"
@@ -27,7 +30,7 @@ Special credits to twitch.tv/omeiaum for the idea, i just coded it
 	- enable debug to print messages on devTools console (inspect/ctrl+shift+i/F12 key -> console)
 	- change emote size
 	- 
-_these options are available to change directly in the code, look at the object ```data: { options: {...}}``` (line 655 on ppShow.html)_
+_these options are available to change directly in the code, look at the object ```data: { options: {...}}```_
 
 
 
@@ -41,12 +44,15 @@ _these options are available to change directly in the code, look at the object 
 	- Mark "Don't clear canvas" to keep the path as the image moves
 
 * Hotkeys:
-(can be disabled in options)
     - 'Esc' to close popups (options and news)
     - 'o' to show/hide options
     - 'c' to connect/disconnect
     - 'h' to show/hide connection info
     - 'n' to show/hide news announcement card
+
+_can be disabled in options_
+
+_auto disabled if an input (text fields, checkbox...) is focused_
 
 ## DEMO video
 https://user-images.githubusercontent.com/80431627/110715426-fbfaa980-81e3-11eb-951f-cb03c3c89904.mp4
@@ -54,9 +60,7 @@ https://user-images.githubusercontent.com/80431627/110715426-fbfaa980-81e3-11eb-
 
 ## IMPORTANT NOTICE:
 Both options 'zero after messages' and 'min. mentions' affect how often they will appear on screen keeping low values (ex: -1 and 5) in both will make it change faster.
-This will depend on chat speed,
-
- the ammount of messages
+This will depend on chat speed and the ammount of messages.
 <br> 
 
 For most cases 5~ and 20~ will be good for 'emote bursts'
@@ -73,6 +77,8 @@ Easier to distribute, better just download one file and open it. And i could jus
 _now, really, don't do that for larger projects. cases like this, a small application is 'fine' i guess, but don't do that if is not needed._
 
 _i do not code like that always._
+
+_<br> tags isn't that great for spacing too i know, but is less tedious than mess with CSS for a simple thing_
 
 
 ## Credits:

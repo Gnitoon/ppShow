@@ -40,7 +40,13 @@ _these options are available to change directly in the code, look at the object 
 	- Click on options and mark the "DVD Stant-by bouncing" to enable
 	- Mark "Don't clear canvas" to keep the path as the image moves
 
-
+* Hotkeys:
+(can be disabled in options)
+    - 'Esc' to close popups (options and news)
+    - 'o' to show/hide options
+    - 'c' to connect/disconnect
+    - 'h' to show/hide connection info
+    - 'n' to show/hide news announcement card
 
 ## DEMO video
 https://user-images.githubusercontent.com/80431627/110715426-fbfaa980-81e3-11eb-951f-cb03c3c89904.mp4

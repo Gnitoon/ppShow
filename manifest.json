@@ -1,0 +1,17 @@
+{
+	"name": "ppShow",
+	"short_name": "ppShow",
+	"start_url": ".",
+	"display": "minimal-ui",
+	"background_color": "#222222",
+	"theme_color": "#212121",
+	"lang": "en-US",
+	"description": "show most used emotes from any twitch channel",
+	"icons": [
+		{
+			"src": "https://pp-show.vercel.app/icon.png",
+			"sizes": "252x252",
+			"type": "image/png"
+		}
+	]
+}

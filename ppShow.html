@@ -11,7 +11,7 @@
     <meta name="keywords" content="bttv%20emotes,emotes,top%20emote,most%20used%20emote,twitch%20chat%20most%20used%20emotes">
 
     <!-- older version available in /archive/ppShow<version>.html, example: .../archive/ppShow100.html -->
-    <meta name="version" content="1.0.1b">
+    <meta name="version" content="1.0.1c">
 
     <meta name='theme-color' content='#616161'>
 
@@ -387,7 +387,7 @@
         <!-- popup (options and notice) -->
         <div
             class="popup-container"
-            v-if="status == 'disconnected' || showOptions"
+            v-if="status == 'disconnected' || showOptions || hasNews"
             :style="{
                 'z-index': status == 'disconnected' && !showOptions && !hasNews ? '-1' : '0'
             }"
@@ -772,7 +772,7 @@
                     <br>
                     <l>emotes: </l> <b>{{emotes.keys.length}}</b>,
                     <!-- <a>top: </a><b>[{{emotes.count[emotes.top.code]}}] {{emotes.top.code}}</b> -->
-                    <l>top: </l><b>{{emotes.top.code}}</b> [{{emotes.top.count}}]
+                    <l>top: </l><b>{{emotes.top.code}}</b> <a v-show="options.debug">[{{emotes.top.count}}]</a>
                 </div>
 
                 <!-- last message -->
@@ -810,7 +810,7 @@
             <div class="combo" v-show="options.showCombo">
                 <div class="c-text-cont">
                     <b id="combo-value" :style="{
-                        'font-size': comboGrowVal + '%' 
+                        'font-size': '100%' 
                     }">{{comboValue}}</b>
 
                 </div>
@@ -864,8 +864,8 @@
                     // That is, zero the count every 20 messages and if have more than 5 mentions
                     // show it
 
-                    // emote size (1, 2 or 3x)
-                    size: "2x",
+                    // emote size (1, 2 or 3)
+                    size: "2",
 
                     // make it bounce like dvd stand-by animation
                     dvdStand: false,
@@ -902,16 +902,14 @@
                 infoHidden: false,
                 optionsDisplay: "none",
                 status: "disconnected",
-                comboGrowTimer: '',
-                comboGrowVal: 100,
                 comboValue: 0,
                 // emoteImgSrc: nothing,
 
                 // new version stuff
                 hasNews: false,
                 version: {
-                    v: '1.0.1b',
-                    date: '2021/Mar/18',
+                    v: '1.0.1c',
+                    date: '2021/Mar/19',
 
                     // just for the meme idk.
                     title: 'Now with 30% more artificial sugar!',
@@ -919,6 +917,7 @@
                     // changes list/description
                     info: [
                         "+ Added this news card!",
+                        "+ FrankerFaceZ emotes support",
                         "+ Hotkeys:",
                         "(can be disabled in options)",
                         "____ 'Esc' to close popups (options and news)",
@@ -947,9 +946,9 @@
                         "light"
                     ],
                     sizes: [
-                        "1x",
-                        "2x",
-                        "3x",
+                        "1",
+                        "2",
+                        "3",
                         "random"
                     ],
                 },
@@ -967,17 +966,27 @@
                 
                 // URLs used to get data about channel, emotes and image
                 apisURL:{
+                    // @see FFZ-API-documentation https://www.frankerfacez.com/developers
                     ffz:{
                         // user to get badge data
                         user: "https://api.frankerfacez.com/v1/user/{channel}",
                         // user to get only channel data
                         _user: "https://api.frankerfacez.com/v1/_user/{channel}",
+                        // 'chat room', get emote sets and relevant data
+                        room: "https://api.frankerfacez.com/v1/room/id/{id}",
+                        imgCDN: "https://cdn.frankerfacez.com/emote/{id}/{size}"
                     },
                     bttv:{
+                        // emote list for a channel
                         emotes: "https://api.betterttv.net/3/cached/users/twitch/{id}",
-                        imgCDN: "https://cdn.betterttv.net/emote/{id}/{size}",
+                        // bttv global
                         global: "https://api.betterttv.net/3/cached/emotes/global",
+                        imgCDN: "https://cdn.betterttv.net/emote/{id}/{size}",
                     }
+
+                    // CDN -> Content Delivery Network:
+                    // basically: spreads cached data across multiple servers in many locations
+                    // and when reach it, use the nearest and fastest to get content
                 },
                 
                 // last message of the chat
@@ -1019,9 +1028,6 @@
                 
             },
             computed: {
-                comboGrow(){
-                    
-                },
                 /**
                  * @description get image from bttv cdn
                  * 
@@ -1031,36 +1037,58 @@
                 emoteImgSrc(){
                     let emote = this.emotes.top;
                     let id = emote.id || undefined;
-                    let size = this.options.size || "2x";
+                    let size = this.options.size || "2";
 
-                    this.comboGrowVal = 120 + emote.count
-                    if(this.comboGrowTimer) clearTimeout(this.comboGrowTimer);
-                    this.comboGrowTimer = setTimeout(() => {
-                        this.comboGrowVal = '100'
-                    }, 100);
 
                     if(size == "random"){
                         // random emote size
                         size = this.enums.sizes[parseInt(Math.random() * 2)]
                     }
+
+                    // add a 'x' for bttv emotes
+                    if(emote.emSource == "bttv"){
+                        size = size + "x"
+                    }
+                    // ffz uses 1, 2 and 4 and sometimes have only 1x size...
+                    else if(emote.emSource == "ffz"){
+                        // use size 4 is is 3 in options (largest)
+                        if(size == "3" && emote.sizes.includes("4")){
+                            size = "4"
+                        }
+                        // fallback if size isn't available
+                        else if(!(emote.sizes.includes(size))){
+                            size = "1"
+                        }
+
+                    }
+
+                    // is has no id :aka: 'undefined' emote
                     if(!id) {
                         return nothing
                     }
 
+                    /*
+                        -> add emSource: [bttv|ffz|twitch] when fetch emotes
+                        -> change ...apisURL.bttv to ...apisURL[emSource], URLs must have {id} and {size}
+                            - FFZ:    sizes are 1, 2, 4
+                            - bttv:   sizes are 1, 2, 3 + 'x' suffix
+                            - twitch: ??
+                    */
+
                     if(this.options.miMentions == -1){
-                        let url = this.apisURL.bttv.imgCDN.replace('{id}', id).replace('{size}', size);
+                        let url = this.apisURL[emote.emSource].imgCDN.replace('{id}', id).replace('{size}', size);
                         this.emotes.last = emote
                         return url
                     }
                     // check if has minimal mentions, if true, create the emote image URL
                     else if(emote.count >= this.options.miMentions){
-                        let url = this.apisURL.bttv.imgCDN.replace('{id}', id).replace('{size}', size);
+                        let url = this.apisURL[emote.emSource].imgCDN.replace('{id}', id).replace('{size}', size);
                         this.emotes.last = emote
                         return url;
-                        // return this.apisURL.bttv.imgCDN.replace('{id}', emote.id).replace('{size}', size)
+                        // return this.apisURL[emote.emSource].imgCDN.replace('{id}', emote.id).replace('{size}', size)
                     }
                     else {
-                        return this.apisURL.bttv.imgCDN.replace('{id}', this.emotes.last.id).replace('{size}', size)
+                        return this.apisURL[emote.emSource].imgCDN.replace('{id}', this.emotes.last.id).replace('{size}', size)
                     }
                 },
             },
@@ -1110,6 +1138,11 @@
                         if(this.version.v != this.options.whatsnewClosed){
                             this.hasNews = true;
                             dbug(`new version! ${this.options.whatsnewClosed} -> ${this.version.v}[${this.version.date}]`)
+                        }
+
+                        // to change to newer size num without going to options [2021/03/19]
+                        if(this.options.size.lastIndexOf('x') != -1){
+                            this.saveLocal('size', this.options.size.slice(0, 1))
                         }
                         
 
@@ -1210,7 +1243,7 @@
                     }
 
                     if(!this.inputFocused && this.options.enableHotkeys){
-                        // get the pressed key and call the function
+                        // get the pressed key and call the function if have any action available
                         let key = e.key;
                         
 
@@ -1230,6 +1263,7 @@
                 
             },
             methods:{
+                // toggle a variable when click/exit a input
                 inFocus(){
                     this.inputFocused = true
                 },
@@ -1317,7 +1351,7 @@
                     this.emotes.raw = emoteList;
                     
                     // merge channel and shared emotes in one array/list
-                    emoteList = [...emoteList.channelEmotes, ...emoteList.sharedEmotes, ...emoteList.global]
+                    emoteList = [...emoteList.channelEmotes, ...emoteList.sharedEmotes, ...emoteList.global, ...emoteList.ffz]
                     let count = {};
                     let keys = [];
 
@@ -1427,6 +1461,14 @@
                                 // add +1 to count, if reach treshold, zero it
                                 count[emoteName]++
                                 dbug(`has: ${emoteName} total: ${count[emoteName]}`)
+
+                                // check if the last emote is the same as the current and sum/reset the combo
+                                if(emoteName == this.emotes.lastCode){
+                                    this.comboValue++
+                                }
+                                else{
+                                    this.comboValue = 0
+                                }
                             }
                         }
 
@@ -1437,13 +1479,7 @@
                             else if(count[a] < count[b]) return 1;
                         })[0]
 
-                        // check if the last emote is the same as the current and sum/reset the combo
-                        if(topKey == this.emotes.lastCode){
-                            this.comboValue++
-                        }
-                        else{
-                            this.comboValue = 0
-                        }
+                       
 
                         // search in emoteList for the top emote
                         this.emotes.top = emoteList.filter(el => el.code == topKey)[0]
@@ -1468,8 +1504,8 @@
                         this.emotes.lastCode = topKey;
                     })
 
-                    this.status = "connected";
 
+                    this.status = "connected";
                 },
 
                 /**
@@ -1545,6 +1581,57 @@
 
                     emoteList.global = await globalEmotes.json()
                     
+
+                    // set source of the bttv emotes, later used to get correct image CDN URL
+                    // loop trough global, channel and shared lists setting a property 'emSource' as 'bttv'
+                    let setSrcOf = ['global', 'channelEmotes', 'sharedEmotes'];
+                    for(let i = 0; i < setSrcOf.length; i++){
+                        let emList = emoteList[setSrcOf[i]];
+
+                        for(let j = 0; j < emList.length; j++){
+                            emList[j].emSource = 'bttv';
+                        }
+                    }
+
+                    let ffzRoom = await fetch(this.apisURL.ffz.room.replace('{id}', user.twitch_id), {
+                        method: 'GET'
+                    });
+                    
+                    if(ffzRoom.status !== 200) {
+                        console.error(`Cant get FFZ emotes! http error code: ${ffzRoom.status}`)
+                        this.err = {
+                            type: "emote_err",
+                            msg:"Can't get ffz emotes",
+                            paintBorder: false,
+                            style:{
+                                "color": "var(--err)",
+                                "font-weight": "600",
+                                "font-size": "90%",
+                            }
+                            
+                        };
+                        return new Error(`Cant get ffz emotes! http error code: ${emoteList.status}`)
+                    }
+
+                    ffzRoom = await ffzRoom.json();
+                    let roomId = await ffzRoom.room.set;
+
+                    // get list of emotes from set
+                    let set = await ffzRoom.sets[roomId].emoticons;
+
+                    // rearrange the list to a scheme like bttv
+                    let ffzEmotes = await set.map(item => {
+                        return {
+                            code: item.name,
+                            id: item.id,
+                            emSource: 'ffz',
+                            sizes: Object.keys(item.urls)
+                        }
+                    })
+
+                    // add to list with others
+                    emoteList.ffz = await ffzEmotes;
+
                     dbug("emotes: ", emoteList);
                     return emoteList;
                 },

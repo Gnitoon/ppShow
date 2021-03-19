@@ -11,7 +11,9 @@
     <meta name="keywords" content="bttv%20emotes,emotes,top%20emote,most%20used%20emote,twitch%20chat%20most%20used%20emotes">
 
     <!-- older version available in /archive/ppShow<version>.html, example: .../archive/ppShow100.html -->
-    <meta name="version" content="1.0.1">
+    <meta name="version" content="1.0.1b">
+
+    <meta name='theme-color' content='#616161'>
 
     <!-- open graph tags -->
     <meta property="og:title" content="ppShow">
@@ -62,7 +64,8 @@
 
                 --text-light: #f1f1f1;
                 --text-dark:  #222222;
-                --text-medium:#616161; /* its just a coincidence, really. */
+                /* --text-medium:#616161; its just a coincidence, really. */
+                --text-medium:  hsl(0deg 0% 50%); /* but devTools complains about cotrast :/. */
                 --bg-input: #212121;
                 --bg-input-border: #616161;
 
@@ -85,8 +88,8 @@
 
                 --text-light: #222222;
                 --text-dark: #616161;
-                --text-medium:#616161; 
-
+                /* --text-medium:#616161;  */
+                --text-medium:hsl(0deg 0% 16%); /* at least this one is ok :) */
 
                 --bg-input: #f1f1f1;
                 --bg-input-border: #e4e4e4;
@@ -123,6 +126,7 @@
             margin-top: 3px;
             display: block;
             width: fit-content;
+            width: -moz-fit-content;
         }
 
         /* general - input, buttons, labels... */
@@ -195,6 +199,7 @@
                 position: absolute;
                 display: block;
                 width: fit-content;
+                width: -moz-fit-content;
                 min-height: 80px;
                 bottom: 10px;
             }
@@ -218,6 +223,7 @@
                 height: fit-content;
                 position: absolute;
                 text-orientation: sideways;
+                -webkit-text-orientation: sideways;
                 writing-mode: vertical-lr;
                 width: 40px;
                 height: -webkit-fill-available;
@@ -303,6 +309,10 @@
             .op-item input[type="checkbox"]{
                 min-width: 20px;
                 min-width: fit-content;
+                /* min-width: -moz-fit-content; */
+                /* min-width: -webkit-fill-available; */
+                /* min-width: -webkit-fit-content; */
+
             }
             
         }
@@ -344,6 +354,27 @@
             font-size: 100%;
         }
 
+
+        .combo{
+            width: min-content;
+            font-size: 3em;
+            padding: 5px;
+            transition: none;
+            position: relative;
+            height: 50px;
+        }
+
+        .combo .c-text-cont{
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            font-size: 110%;
+        }
+        #combo-value{
+            font-size: 100%;
+            transition: all 40ms ease-out;
+        }
+
     </style>
 </head>
 <body class="dark">
@@ -351,7 +382,7 @@
     <div id="canvas-cont">
         <canvas id="dvd-like"></canvas>
     </div>
-    <div id="app">
+    <main id="app">
 
         <!-- popup (options and notice) -->
         <div
@@ -584,6 +615,22 @@
                             <i>only applies if NO INPUT IS FOCUSED (text fields, checkbox...)</i>
                         </div>
 
+                        <!-- Combo -->
+                        <div class="op-item">
+                            <input
+                                type="checkbox"
+                                id="deb"
+                                v-model="options.showCombo"
+                                @change="saveLocal('showCombo', $event.target.checked)"
+
+                                @focus="inFocus"
+                                @blur="inBlur"
+                            >
+                            <label for="deb">Combo value</label>
+                            <br>
+                            <i>the number of mentions in a sequence (any other emote will cancel it!)</i>
+                        </div>
+
                         <!-- toggle debug, showing things on devTools console -->
                         <div class="op-item">
                             <input
@@ -625,12 +672,12 @@
                         <br>
                         <br>
                         <b class="subtitle">Credits:</b>
-                        <br> <a href="https://twitch.tv/omeiaum" target="_blank" class="link">oMeiaUm</a>
-                        <br> <a href="https://vuejs.org/" target="_blank" class="link">Vue.js</a> framework
-                        <br> <a href="https://tmijs.com/" target="_blank" class="link">tmijs package</a> (to connect with twitch chat)
-                        <br> <a href="https://betterttv.com/" target="_blank" class="link">BetterTTV</a> (emotes and APIs)
-                        <br> <a href="https://www.frankerfacez.com/developers" target="_blank" class="link">FrankerFaceZ</a> (channel info)
-                        <br> <a href="http://developpaper.com/using-canvas-to-make-a-dvd-standby-animation-implementation-code/" target="_blank" class="link">developpaper.com</a>('dvd mode' code base)
+                        <br> <a rel="noreferrer" target="_blank" href="https://twitch.tv/omeiaum" class="link">oMeiaUm</a>
+                        <br> <a rel="noreferrer" target="_blank" href="https://vuejs.org/" class="link">Vue.js</a> framework
+                        <br> <a rel="noreferrer" target="_blank" href="https://tmijs.com/" class="link">tmijs package</a> (to connect with twitch chat)
+                        <br> <a rel="noreferrer" target="_blank" href="https://betterttv.com/" class="link">BetterTTV</a> (emotes and APIs)
+                        <br> <a rel="noreferrer" target="_blank" href="https://www.frankerfacez.com/developers" class="link">FrankerFaceZ</a> (channel info)
+                        <br> <a rel="noreferrer" target="_blank" href="http://developpaper.com/using-canvas-to-make-a-dvd-standby-animation-implementation-code/" class="link">developpaper.com</a>('dvd mode' code base)
                         <br> <i>Icon (favicon) by me, based on a random emote from "ppS" bttv search, made with random pixelArt online tool</i>
 
                         <br>
@@ -677,14 +724,14 @@
                 <!-- Good News Everyone -->
                 <div class="whatsnew options" v-if="hasNews" :style="{display: optionsDisplay, 'z-index': '1'}">
                     <div class="op-header">
-                        <a>Updated to version {{version.v}}!</a>
+                        <l>Updated to version {{version.v}}!</l>
                         <button @click="saveLocal('whatsnewClosed', version.v)">X</button>
                     </div>
                     <div class="op-items">
                         <i>{{version.date}}</i>
                         <br>
                         <br>
-                        <a class="title">{{version.title}}</a>
+                        <l class="title">{{version.title}}</l>
                         <br>
                         <br>
                         <b class="title">Changes</b>
@@ -713,7 +760,7 @@
                 @click="infoHidden = !infoHidden"
                 title="show/hide messages and connection info"
             >
-                <a class="show-hide-btn">{{infoHidden ? "SHOW" : "HIDE"}}</a>
+                <l class="show-hide-btn">{{infoHidden ? "SHOW" : "HIDE"}}</l>
             </div>
             
             <div class="sub-cont" v-if="!infoHidden">
@@ -721,11 +768,11 @@
                 <div class="info">
                     <b :class="'stat-'+status">{{this.status}}</b>
                     <br>
-                    <a>total: </a> <b>{{messageCount}}</b>
+                    <l>total: </l> <b>{{messageCount}}</b>
                     <br>
-                    <a>emotes: </a> <b>{{emotes.keys.length}}</b>,
+                    <l>emotes: </l> <b>{{emotes.keys.length}}</b>,
                     <!-- <a>top: </a><b>[{{emotes.count[emotes.top.code]}}] {{emotes.top.code}}</b> -->
-                    <a>top: </a><b>{{emotes.top.code}}</b>
+                    <l>top: </l><b>{{emotes.top.code}}</b> [{{emotes.top.count}}]
                 </div>
 
                 <!-- last message -->
@@ -759,11 +806,20 @@
             <button @click="showOptions = !showOptions">options</button>
             <br>
             <a class="not-link err-text" v-if="err.type == 'user_err'" :style="err.style">{{err.msg}}</a>
+            <br>
+            <div class="combo" v-show="options.showCombo">
+                <div class="c-text-cont">
+                    <b id="combo-value" :style="{
+                        'font-size': comboGrowVal + '%' 
+                    }">{{comboValue}}</b>
+
+                </div>
+            </div>
         </div>
 
         <!-- actual image, centered -->
         <div id="img-container">
-            <img v-if="!options.dvdStand" :src="emoteImgSrc" id="emoteIMG" :style="{
+            <img v-if="!options.dvdStand" :src="emoteImgSrc" id="emoteIMG" :alt="emotes.top.code || 'emote'" :style="{
                 transform: 'scale('+ (+options.size.slice(0,1) + 1) +')'
             }">
         </div>
@@ -774,7 +830,7 @@
             is a pretty good way i guess 
         -->
 
-    </div>
+    </main>
 
 
     <!-- <script src="index.js"></script> -->
@@ -836,20 +892,26 @@
                     // enable keyboard shortcuts
                     enableHotkeys: true,
 
+                    // show/hide combo
+                    showCombo: false,
                 },
 
                 messageCount: 0,
+                messageCountTrs: 0,
                 showOptions: false,
                 infoHidden: false,
                 optionsDisplay: "none",
                 status: "disconnected",
+                comboGrowTimer: '',
+                comboGrowVal: 100,
+                comboValue: 0,
                 // emoteImgSrc: nothing,
 
                 // new version stuff
                 hasNews: false,
                 version: {
-                    v: '1.0.1',
-                    date: '2021/Mar/17',
+                    v: '1.0.1b',
+                    date: '2021/Mar/18',
 
                     // just for the meme idk.
                     title: 'Now with 30% more artificial sugar!',
@@ -864,10 +926,17 @@
                         "____ 'c' to connect/disconnect",
                         "____ 'h' to show/hide connection info",
                         "____ 'n' to show/hide news announcement card (this popup)",
+                        "+ C-C-Combo! the number of mentions of the emote in a sequence but ATTENTION: the combo is cancelled if ANY other emote appear in a sequence",
+                        "~ fixed miMentions and message zero treshold not doing what is supposed, please review your options if somethig isn't working",
                         "+ Added version meta tag",
                         "+ Saving the date and time when an option is changed",
                         "+ Some more comments in the code, might help if want to know how it works",
-                        "-> Added webmanifest and Open Graph meta tags (enable search engines and social media to display a preview with title, image, description...), basically SEO"
+                        "-> Added webmanifest and Open Graph meta tags (enable search engines and social media to display a preview with title, image, description...), basically SEO",
+                        "~ fixed some issues in CSS with help of devTools/Edge issues",
+                        "+ updated some elements to complain with lighthouse report: https://googlechrome.github.io/lighthouse/viewer/?psiurl=https%3A%2F%2Fpp-show.vercel.app%2F&strategy=desktop",
+                        "~ changed some <a> elements to <l>, <l> does not exists and i don't want to mess with CSS now",
+                        "~ changed color #616161 to hsl(0deg,0,50%) and hsl(0deg 0% 16%) for dark and light themes to get better contrast",
+
                     ],
                 },
 
@@ -937,12 +1006,22 @@
                         id: "",
                         imageType: "",
                         count: 0
-                    }
+                    },
+
+                    // last top emote
+                    last: '',
+
+                    // last emote of any message
+                    // ATTENTION: the combo is cancelled if ANY other emote appear in a sequence
+                    lastCode: '',
                 },
 
                 
             },
             computed: {
+                comboGrow(){
+                    
+                },
                 /**
                  * @description get image from bttv cdn
                  * 
@@ -950,8 +1029,15 @@
                  * @param {String} size  image size, 1x, 2x or 3x (optional)
                 */
                 emoteImgSrc(){
-                    let id = this.emotes.top.id || undefined;
+                    let emote = this.emotes.top;
+                    let id = emote.id || undefined;
                     let size = this.options.size || "2x";
+
+                    this.comboGrowVal = 120 + emote.count
+                    if(this.comboGrowTimer) clearTimeout(this.comboGrowTimer);
+                    this.comboGrowTimer = setTimeout(() => {
+                        this.comboGrowVal = '100'
+                    }, 100);
 
                     if(size == "random"){
                         // random emote size
@@ -962,12 +1048,19 @@
                     }
 
                     if(this.options.miMentions == -1){
-                        return this.apisURL.bttv.imgCDN.replace('{id}', id).replace('{size}', size)
+                        let url = this.apisURL.bttv.imgCDN.replace('{id}', id).replace('{size}', size);
+                        this.emotes.last = emote
+                        return url
                     }
                     // check if has minimal mentions, if true, create the emote image URL
                     else if(emote.count >= this.options.miMentions){
-                        return this.apisURL.bttv.imgCDN.replace('{id}', id).replace('{size}', size)
+                        let url = this.apisURL.bttv.imgCDN.replace('{id}', id).replace('{size}', size);
+                        this.emotes.last = emote
+                        return url;
                         // return this.apisURL.bttv.imgCDN.replace('{id}', emote.id).replace('{size}', size)
+                    }
+                    else {
+                        return this.apisURL.bttv.imgCDN.replace('{id}', this.emotes.last.id).replace('{size}', size)
                     }
                 },
             },
@@ -1297,6 +1390,7 @@
                     this.client.on('message', (channelName, userInfo, msg, self) => {
 
                         dbug(`[${++this.messageCount}] ${userInfo['display-name']}: ${msg}`)
+                        this.messageCountTrs++;
 
                         // prepare style for mod/sub
                         let sumoStyle = {
@@ -1343,6 +1437,13 @@
                             else if(count[a] < count[b]) return 1;
                         })[0]
 
+                        // check if the last emote is the same as the current and sum/reset the combo
+                        if(topKey == this.emotes.lastCode){
+                            this.comboValue++
+                        }
+                        else{
+                            this.comboValue = 0
+                        }
 
                         // search in emoteList for the top emote
                         this.emotes.top = emoteList.filter(el => el.code == topKey)[0]
@@ -1352,16 +1453,19 @@
 
                         // zero emote count if reach the message treshold
                         // see options in the page
-                        if(this.options.msgTreshold != -1 && this.messageCount >= this.options.msgTreshold){
+                        if(this.options.msgTreshold != -1 && this.messageCountTrs >= this.options.msgTreshold){
                             // loop trough emote names (keys) and set the emote count to 0
                             // in emote count object
+                            dbug('counter cleared')
                             for(let i = 0; i < keys.length; i++){
                                 count[keys[i]] = 0;
                             }
+                            this.messageCountTrs = 0;
                         }
 
                         // name, count
                         dbug(count[topKey], this.emotes.top)
+                        this.emotes.lastCode = topKey;
                     })
 
                     this.status = "connected";

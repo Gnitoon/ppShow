@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ppShow</title>
+    <script src="tmi.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+
+    <meta name="description" content="show most used emotes from any twitch channel">
+    <meta name="keywords" content="bttv%20emotes,emotes,top%20emote,most%20used%20emote,twitch%20chat%20most%20used%20emotes">
+
+    <!-- older version available in /archive/ppShow<version>.html, example: .../archive/ppShow100.html -->
+    <meta name="version" content="1.0.1b">
+
+    <meta name='theme-color' content='#616161'>
+
+    <!-- open graph tags -->
+    <meta property="og:title" content="ppShow">
+    <meta property="og:description" content="show most used emotes from any twitch channel">
+    <meta property="og:site_name" content="ppShow">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pp-show.vercel.app">
+    <meta property="og:image" content="https://pp-show.vercel.app/icon.png">
+    
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- font Source Sand pro -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap" rel="stylesheet">
+
+    <!-- BASE64 IMAGE AHEAD -->
+    <link
+        rel="shortcut icon"
+        href="data:image/png;base64,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"
+        type="image/png"
+    >
+
+    <!-- base64 transparent image, emote placeholder -->
+    <script>
+        const nothing = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAQSURBVHgBAQUA+v8AAAAAAAAFAAFkeJU4AAAAAElFTkSuQmCC"
+    </script>
+
+    <script>
+        var debug = false;
+        /**
+         * @description wraps console.log() to show only if debug = true 
+         * 
+         * @param {*} args anything yu would use in console.log()
+         * @example dbug("hi") -> prints "hi" in browser devTools console
+         */
+        function dbug(...args){
+            if(debug) console.log(`[debug] `, ...args);
+        }
+    </script>
+
+    <style>
+        
+        /* themes */
+        @media all {
+            .dark{
+                --bg-main: #000;
+
+                --text-light: #f1f1f1;
+                --text-dark:  #222222;
+                /* --text-medium:#616161; its just a coincidence, really. */
+                --text-medium:  hsl(0deg 0% 50%); /* but devTools complains about cotrast :/. */
+                --bg-input: #212121;
+                --bg-input-border: #616161;
+
+                --bg-dark: #212121;
+                --bg-light: #f1f1f1;
+                --bg-popup: #151515;
+
+                --err: #ff5f5f;
+                --warn: #ffd95f;
+                --info: #5faaff;
+                --succ: #67f369;
+                --err-half:  #ff5f5f1f;
+                --warn-half: #ffd95f1f;
+                --info-half: #5faaff1f;
+                --succ-half: #67f3691f;
+            }
+
+            .light{
+                --bg-main: #FFF;
+
+                --text-light: #222222;
+                --text-dark: #616161;
+                /* --text-medium:#616161;  */
+                --text-medium:hsl(0deg 0% 16%); /* at least this one is ok :) */
+
+                --bg-input: #f1f1f1;
+                --bg-input-border: #e4e4e4;
+
+
+                --bg-light: #F1F1F1;
+                --bg-dark: #616161;
+                --bg-popup: #CECECE;
+
+                --err:  #ff3f3f;
+                --warn: #eaa908;
+                --info: #2b69ae;
+                --succ: #119648;
+                --err-half:  #ff3f3f1f;
+                --warn-half: #eaa9081f;
+                --info-half: #2b69ae1f;
+                --succ-half: #1196481f;
+            }
+        }
+
+
+        *{
+            font-family: 'Source Sans Pro', sans-serif;
+            transition: all 400ms ease-in-out;
+        }
+        body{
+            background-color: var(--bg-main);
+            color: var(--text-light);
+        }
+
+        .err-text{
+            padding: 3px 6px;
+            border-radius: 3px;
+            margin-top: 3px;
+            display: block;
+            width: fit-content;
+            width: -moz-fit-content;
+        }
+
+        /* general - input, buttons, labels... */
+        @media all {
+            input[type="text"], .inputt{
+                font-family: 'Source Sans Pro', sans-serif;
+
+                background: var(--bg-input);
+                color: var(--text-light);
+                border: none;
+                padding: 4px 5px;
+                border-radius: 3px;
+                font-size: 85%;
+                outline: none;
+                
+            }
+            input[type="text"]:focus, .inputt:focus{
+                border-radius: 3px 3px 0px 0px;
+                /* border-bottom: solid 1px #f1f1f1; */
+                border-bottom: solid 2px var(--bg-input-border);
+            }
+            label{
+                color: var(--text-light);
+            }
+
+            button{
+                border: none;
+                border-radius: 3px;
+                padding: 3px 6px;
+                background-color: var(--bg-light);
+                color: var(--text-medium);
+                cursor: pointer;
+            }
+
+            .link{
+                text-decoration: none;
+                color: var(--info);
+                cursor: pointer;
+            }
+            .link:hover{
+                text-decoration: underline;
+                transform: scale(0.3);
+            }
+            
+        }
+
+        /* scroll bar */
+        @media all {
+            ::-webkit-scrollbar {
+                width: 8px;
+                background: var(--bg-input);
+            }
+            
+            /* Handle */
+            ::-webkit-scrollbar-thumb {
+                background: var(--bg-input-border);
+                border-radius: 3px;
+            }
+            
+            /* Handle on hover */
+            ::-webkit-scrollbar-thumb:hover {
+                background: var(--text-light); 
+            }
+        }
+
+        /* connection info and last message */
+        @media all {
+
+            .msg-container{
+                position: absolute;
+                display: block;
+                width: fit-content;
+                width: -moz-fit-content;
+                min-height: 80px;
+                bottom: 10px;
+            }
+            .last-msg{
+                max-width: 600px;
+            }
+
+            .stat-connected{
+                color: var(--succ);
+            }
+            .stat-disconnected{
+                color: var(--err);
+            }
+            .stat-connecting{
+                color: var(--warn);
+            }
+
+            .show-hide-container{
+                background-color: var(--bg-input);
+                color: var(--text-light);
+                height: fit-content;
+                position: absolute;
+                text-orientation: sideways;
+                -webkit-text-orientation: sideways;
+                writing-mode: vertical-lr;
+                width: 40px;
+                height: -webkit-fill-available;
+                text-align: center;
+                padding: 2px 10px;
+                box-sizing: border-box;
+                letter-spacing: 1px;
+                /* font-variant: petite-caps; */
+                transform: scale(-1,-1);
+                /* max-height: 80px; */
+                min-height: 80px;
+                cursor: pointer;
+            }
+
+            .msg-container .sub-cont{
+                margin-left: 50px;
+            }
+        }
+
+        /* popup and options */
+        @media all {
+            .popup-container{
+                position: absolute;
+                width: calc(100% - 17px);
+                height: calc(100% - 17px);
+                display: flex;
+                /* text-align: center; */
+            }
+
+            .popup-sub{
+                align-self: center;
+                width: 100%;
+                text-align: center;
+                color: var(--text-medium);
+            }
+
+
+            .options{
+                max-width: 350px;
+                /* text-align: left; */
+                background-color: var(--bg-popup);
+                padding: 10px;
+                border-radius: 5px;
+                margin-left: 32%;
+                min-width: 300px;
+                text-align: left;
+                display: none;
+
+                max-height: 550px;
+                overflow-y: scroll;
+            }
+            .op-header{
+                text-align: left;
+            }
+            .op-header a{
+                color: var(--text-light);
+                font-size: 110%;
+            }
+            .op-header button{
+                float: right;
+                padding: 3px 8px;
+                font-weight: 600;
+            }
+        
+            .op-item{
+                margin: 14px 0px;
+            }
+            .op-item input[type="checkbox"]{
+                width: 14px;
+                height: 14px;
+                vertical-align: text-bottom;
+            }
+            .op-item i{
+                font-size: 85%;
+            }
+            .op-item input, .op-item select{
+                min-width: 190px;
+            }
+            .op-item select{
+                padding: 3px 5px;
+                min-width: 200px;
+            }
+            .op-item input[type="checkbox"]{
+                min-width: 20px;
+                min-width: fit-content;
+                /* min-width: -moz-fit-content; */
+                /* min-width: -webkit-fill-available; */
+                /* min-width: -webkit-fit-content; */
+
+            }
+            
+        }
+
+
+        #canvas-cont{
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 98vh;
+            width: 99vw;
+            z-index: -1;
+        }
+        #dvd-like{
+            width: 100%;
+            height: 100%;
+        }
+
+
+        #img-container{
+            display: flex;
+            position: absolute;
+            top: 0;
+            height: calc(100% - 18px);
+            width: calc(100% - 18px);
+            z-index: -1;
+        }
+        #emoteIMG{
+            margin: auto;
+            width: auto;
+        }
+
+        .title{
+            color: var(--text-light);
+            font-size: 105%;
+        }
+        .subtitle{
+            color: var(--text-light);
+            font-size: 100%;
+        }
+
+
+        .combo{
+            width: min-content;
+            font-size: 3em;
+            padding: 5px;
+            transition: none;
+            position: relative;
+            height: 50px;
+        }
+
+        .combo .c-text-cont{
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            font-size: 110%;
+        }
+        #combo-value{
+            font-size: 100%;
+            transition: all 40ms ease-out;
+        }
+
+    </style>
+</head>
+<body class="dark">
+    <noscript>This page requires JavaScript enabled <br> Using Vue.js framework and tmi.js library</noscript>
+    <div id="canvas-cont">
+        <canvas id="dvd-like"></canvas>
+    </div>
+    <main id="app">
+
+        <!-- popup (options and notice) -->
+        <div
+            class="popup-container"
+            v-if="status == 'disconnected' || showOptions"
+            :style="{
+                'z-index': status == 'disconnected' && !showOptions && !hasNews ? '-1' : '0'
+            }"
+        >
+            <div class="popup-sub">
+                <div class="notice" v-if="status == 'disconnected' && !showOptions && !hasNews">
+                    Hi
+                    <br>
+                    this is a simple site/page to show most used emote in a channel from twitch.tv
+                    <br>
+                    credits to twitch.tv/omeiaum for the idea, i just coded it
+                    <br>
+                    <br>
+                    <i>'dvd mode' may now work properly in Firefox, please prefer chromium based browsers (like Chrome)</i>
+                    <br> TY <3
+                </div>
+
+                <!-- options -->
+                <div class="options" v-if="showOptions" :style="{display: optionsDisplay}">
+                    <div class="op-header">
+                        <a>Options</a>
+                        <button @click="showOptions = !showOptions">X</button>
+                    </div>
+
+                    <!-- actual options -->
+                    <div class="op-items">
+                        <i>options are saved in browser localStorage</i>
+                        <br>
+                        <i>please read the notice by scrolling down</i>
+                        <br>
+                        <br>
+                        <!-- Min mention amount -->
+                        <div class="op-item">
+                            <label for="miment">Minimal amount of mentions to change </label>
+                            <input
+                                class="inputt"
+                                id="miment"
+                                type="number"
+                                v-model="options.miMentions"
+                                placeholder="10"
+                                min="-1"
+                                @change="saveLocal('miMentions', $event.target.value)"
+
+                                @focus="inFocus"
+                                @blur="inBlur"
+
+                            >
+                            <br>
+                            <i>Only change the displayed emote if have more than X mentions</i>
+                            <br>
+                            <i>-1 to always use top one</i>
+                        </div>
+
+                        <!-- zero after X messages -->
+                        <div class="op-item">
+                            <label for="miment">Zero the count of each emote after X messages</label>
+                            <input
+                                class="inputt"
+                                id="miment"
+                                type="number"
+                                v-model="options.msgTreshold"
+                                placeholder="100"
+                                min="-1"
+                                @change="saveLocal('msgTreshold', $event.target.value)"
+
+                                @focus="inFocus"
+                                @blur="inBlur"
+                            >
+                            <br>
+                            <i>this will help to use only most recent ones</i>
+                            <br>
+                            <i>-1 to not zero</i>
+                        </div>
+                        
+                        <!-- theme -->
+                        <div class="op-item">
+                            <label for="theme">Theme</label>
+                            <br>
+                            <select
+                                class="inputt"
+                                id="theme"
+                                v-model="options.theme"
+                                @change="saveLocal('theme', $event.target.value)"
+
+                                @focus="inFocus"
+                                @blur="inBlur"
+                            >
+                                <option
+                                    v-for="th of enums.themes"
+                                    :value="th"
+                                    :selected="th == options.theme"       
+                                >{{th}}</option>
+                            </select>
+                            <br>
+                            <i v-if="options.theme == 'dark'">Be careful if you are in the dark, this will suddlenly change to white</i>
+                        </div>
+                        
+                        <!-- size -->
+                        <div class="op-item">
+                            <label for="esiz">Emote size</label>
+                            <br>
+                            <select
+                                class="inputt"
+                                id="esiz"
+                                v-model="options.size"
+                                @change="saveLocal('size', $event.target.value)"
+
+                                @focus="inFocus"
+                                @blur="inBlur"
+                            >
+                                <option
+                                    v-for="th of enums.sizes"
+                                    :value="th"
+                                    :selected="th == options.size"       
+                                >{{th}}</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Auto connect when page load -->
+                        <div class="op-item">
+                            <input
+                                id="autocon"
+                                type="checkbox"
+                                v-model="options.connectOnLoad"
+                                @change="saveLocal('connectOnLoad', $event.target.checked)"
+
+                                @focus="inFocus"
+                                @blur="inBlur"
+                            >
+                            <label for="autocon">Auto connect on open</label>
+                            <br>
+                            <i>channel must be setted once or add #channel_name on URL</i>
+                        </div>
+
+                        <!-- dvd mode -->
+                        <div class="op-item">
+                            <input
+                                type="checkbox"
+                                id="deb"
+                                v-model="options.dvdStand"
+                                @change="saveLocal('dvdStand', $event.target.checked)"
+
+                                @focus="inFocus"
+                                @blur="inBlur"
+                            >
+                            <label for="deb">DVD stand-by bouncing</label>
+                            <br>
+                            <input
+                                type="checkbox"
+                                id="dirtyCanvas"
+                                v-model="options.dirtyCanvas"
+                                @change="saveLocal('dirtyCanvas', $event.target.checked)"
+
+                                @focus="inFocus"
+                                @blur="inBlur"
+                            >
+                            <label for="dirtyCanvas">Don't clear canvas</label>
+                            <br>
+                            <i>speeds: X and Y</i>
+                            <br>
+                            <input
+                                type="number"
+                                class="inputt"
+                                style="min-width: 80px; width: 80px"
+                                placeholder="speed X"
+                                v-model="options.dvdspeedX"
+                                min="0"
+                                step="0.1"
+                                @change="saveLocal('dvdspeedX', $event.target.value)"
+
+                                @focus="inFocus"
+                                @blur="inBlur"
+                            >
+                            <input
+                                type="number"
+                                class="inputt"
+                                style="min-width: 80px; width: 80px"
+                                placeholder="speed Y"
+                                v-model="options.dvdspeedY"
+                                min="0"
+                                step="0.1"
+                                @change="saveLocal('dvdspeedY', $event.target.value)"
+
+                                @focus="inFocus"
+                                @blur="inBlur"
+                            >
+                            <br>
+                            <i>RNG multiplier: Multiplied by a random number to change the direction a bit</i>
+                            <br>
+                            <input
+                                type="number"
+                                class="inputt"
+                                style="min-width: 80px; width: 80px"
+                                placeholder="speed Y"
+                                v-model="options.spRngMultip"
+                                min="0"
+                                step="0.1"
+                                @change="saveLocal('spRngMultip', $event.target.value)"
+
+                                @focus="inFocus"
+                                @blur="inBlur"
+                            >
+                            <br>
+                            <i>make it like a good ol' dvd</i>
+                        </div>
+                        
+
+                        <!-- hotkeys -->
+                        <div class="op-item">
+                            <input
+                                type="checkbox"
+                                id="deb"
+                                v-model="options.enableHotkeys"
+                                @change="saveLocal('enableHotkeys', $event.target.checked)"
+
+                                @focus="inFocus"
+                                @blur="inBlur"
+                            >
+                            <label for="deb">Hotkeys</label>
+                            <br>
+                            <i>use keyboard to make some things easier!</i>
+                            <br>
+                            <i>Full list at the very bottom, scroll it down...</i>
+                            <br>
+                            <i>only applies if NO INPUT IS FOCUSED (text fields, checkbox...)</i>
+                        </div>
+
+                        <!-- Combo -->
+                        <div class="op-item">
+                            <input
+                                type="checkbox"
+                                id="deb"
+                                v-model="options.showCombo"
+                                @change="saveLocal('showCombo', $event.target.checked)"
+
+                                @focus="inFocus"
+                                @blur="inBlur"
+                            >
+                            <label for="deb">Combo value</label>
+                            <br>
+                            <i>the number of mentions in a sequence (any other emote will cancel it!)</i>
+                        </div>
+
+                        <!-- toggle debug, showing things on devTools console -->
+                        <div class="op-item">
+                            <input
+                                type="checkbox"
+                                id="deb"
+                                v-model="options.debug"
+                                @change="saveLocal('debug', $event.target.checked)"
+
+                                @focus="inFocus"
+                                @blur="inBlur"
+                            >
+                            <label for="deb">Debug</label>
+                            <br>
+                            <i>print messages and useful things on devTools console (press F12 key)</i>
+                        </div>
+
+
+
+
+                        <i>
+                            <br> <b class="subtitle">IMPORTANT NOTICE:</b>
+                            <br> Both 'zero after messages' and 'min. mentions' affect how often they will
+                            appear on screen keeping low values (ex: -1 and 5) in both will make it
+                            change faster.
+                            This will depend on chat speed, the ammount of messages
+                            <br> 
+                            <br> 
+                            For most cases 5~ and 20~ will be good for 'emote bursts'
+                            <br>
+                            That is, zero the count every 20 messages and if have more than 5 mentions show it
+                            <br>                            
+                                                        
+                        </i>
+
+                        <br>                            
+                        <br>
+                        <a class="subtitle">LICENSE:</a> <a href="https://opensource.org/licenses/MIT" target="_blank" class="link">MIT</a>
+                        
+                        <br>
+                        <br>
+                        <b class="subtitle">Credits:</b>
+                        <br> <a rel="noreferrer" target="_blank" href="https://twitch.tv/omeiaum" class="link">oMeiaUm</a>
+                        <br> <a rel="noreferrer" target="_blank" href="https://vuejs.org/" class="link">Vue.js</a> framework
+                        <br> <a rel="noreferrer" target="_blank" href="https://tmijs.com/" class="link">tmijs package</a> (to connect with twitch chat)
+                        <br> <a rel="noreferrer" target="_blank" href="https://betterttv.com/" class="link">BetterTTV</a> (emotes and APIs)
+                        <br> <a rel="noreferrer" target="_blank" href="https://www.frankerfacez.com/developers" class="link">FrankerFaceZ</a> (channel info)
+                        <br> <a rel="noreferrer" target="_blank" href="http://developpaper.com/using-canvas-to-make-a-dvd-standby-animation-implementation-code/" class="link">developpaper.com</a>('dvd mode' code base)
+                        <br> <i>Icon (favicon) by me, based on a random emote from "ppS" bttv search, made with random pixelArt online tool</i>
+
+                        <br>
+                        <br>
+                        <b class="title">BASIC USAGE: </b>
+                        <br>
+                        <b class="subtitle">Connect:</b>
+                        <br>
+                        -> Type the twitch channel name in the top-right input field and click connect.
+                        <br>
+                        <br>
+                        Emotes not changing/appearing or it's too slow/fast? <br>
+                        -> Click on options and change 'minimal aount os mentions' and 'Zero the count...' to lower/higher numbers
+
+                        <br>
+                        <br>
+                        <b class="subtitle">'DVD Mode'?</b>
+                        <br>
+                        -> Bounce the image on screen sides, just like the dvd logo, but with emotes
+                        <br>
+                        -> Click on options and mark the "DVD Stant-by bouncing" to enable
+                        <br>
+                        -> Mark "Don't clear canvas" to keep the path as the image moves
+
+
+                        <br>
+                        <br>
+                        <b class="subtitle">Hotkeys</b>
+                        <br>
+                        -> Esc to close Update messsage card and options
+                        <br>
+                        -> 'o' to show/hide options
+                        <br>
+                        -> 'h' to show/hide connection info and message
+                        <br>
+                        -> 'c' to connect/disconnect
+                        <br>
+                        <i>you will be propted to comfirm disconnect</i>
+
+                    </div>
+                </div>
+
+
+                <!-- Good News Everyone -->
+                <div class="whatsnew options" v-if="hasNews" :style="{display: optionsDisplay, 'z-index': '1'}">
+                    <div class="op-header">
+                        <l>Updated to version {{version.v}}!</l>
+                        <button @click="saveLocal('whatsnewClosed', version.v)">X</button>
+                    </div>
+                    <div class="op-items">
+                        <i>{{version.date}}</i>
+                        <br>
+                        <br>
+                        <l class="title">{{version.title}}</l>
+                        <br>
+                        <br>
+                        <b class="title">Changes</b>
+                        <p v-for="infoLine of version.info">{{infoLine}}</p>
+                        <!-- {{version.info}} -->
+                        <br>
+                        <br>
+                        see more @ <a href="https://github.com/Gnitoon/ppShow/releases/" target="_blank" class="link">releases on github</a>
+                        <br>
+                        found a bug or want to send feedback? reach out and <a href="https://github.com/Gnitoon/ppShow/issues/" target="_blank" class="link">open an issue on github!</a>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+
+
+
+        <!-- connection info and last received message -->
+        <div class="msg-container">
+
+            <!-- show/hide button -->
+            <div class="show-hide-container"
+                @click="infoHidden = !infoHidden"
+                title="show/hide messages and connection info"
+            >
+                <l class="show-hide-btn">{{infoHidden ? "SHOW" : "HIDE"}}</l>
+            </div>
+            
+            <div class="sub-cont" v-if="!infoHidden">
+                <!-- info -->
+                <div class="info">
+                    <b :class="'stat-'+status">{{this.status}}</b>
+                    <br>
+                    <l>total: </l> <b>{{messageCount}}</b>
+                    <br>
+                    <l>emotes: </l> <b>{{emotes.keys.length}}</b>,
+                    <!-- <a>top: </a><b>[{{emotes.count[emotes.top.code]}}] {{emotes.top.code}}</b> -->
+                    <l>top: </l><b>{{emotes.top.code}}</b> [{{emotes.top.count}}]
+                </div>
+
+                <!-- last message -->
+                <div class="last-msg" v-if="lastMessage.user != ''" :style="lastMessage.style">
+                    <a class="lm-user" :style="{
+                        color: lastMessage.color,
+                        'font-weight': 600
+                    }"
+                    >{{lastMessage.user}}</a>: <a>{{lastMessage.msg}}</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- channel input, buttons and error message -->
+        <div>
+            <input
+                type="text"
+                v-model="options.channel"
+                @keypress.enter="connector"
+                @focus="inFocus"
+                @blur="inBlur"
+                @change="saveLocal('channel', $event.target.value)"
+                placeholder="channel"
+                :style="err.paintBorder ? {
+                    'border-bottom': 'solid 2px ' + err.style.color,
+                    'background-color': err.style['background-color']
+                } : {}"
+            >
+            
+            <button @click="connector">{{status == 'connected' ? 'Disconnect' : 'Connect'}}</button>
+            <button @click="showOptions = !showOptions">options</button>
+            <br>
+            <a class="not-link err-text" v-if="err.type == 'user_err'" :style="err.style">{{err.msg}}</a>
+            <br>
+            <div class="combo" v-show="options.showCombo">
+                <div class="c-text-cont">
+                    <b id="combo-value" :style="{
+                        'font-size': comboGrowVal + '%' 
+                    }">{{comboValue}}</b>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- actual image, centered -->
+        <div id="img-container">
+            <img v-if="!options.dvdStand" :src="emoteImgSrc" id="emoteIMG" :alt="emotes.top.code || 'emote'" :style="{
+                transform: 'scale('+ (+options.size.slice(0,1) + 1) +')'
+            }">
+        </div>
+
+        <!-- 
+            <br> tag is not the best to space i know,
+            but when you are tired or don't want to mess with css
+            is a pretty good way i guess 
+        -->
+
+    </main>
+
+
+    <!-- <script src="index.js"></script> -->
+    <script>
+        app = new Vue({
+            // the element where Vue will do its job
+            el: '#app',
+            data:{
+                options: {
+                    // you can set the channel here if dont want to use #<channel> in url or type
+                    // when use the input box it will ask you if want to save on localStorage
+                    // then also doesn't need to type again
+                    channel: "",
+                    
+                    // minimum amount of mentions to change emote image
+                    // DOES NOT affect the actual emotes.top (most mentioned)
+                    // -1 to always use top one
+                    miMentions: -1,
+
+                    // zero count for the emote if pass the specified amount of messages
+                    // -1 to unlimited
+                    msgTreshold: 10,
+                    
+                    // ! IMPORTANT:
+                    // both msgTheshold and miMentions affect how often they will appear on screen
+                    // keeping low values (ex: -1 and 5) in both will make it change faster
+                    // this will depend on chat speed, the ammount of messages and amount of
+                    // messages that contain an emote (like 8 messages with emotes out of 10 total)
+                    // 
+                    // for most cases a good number might be msgTheshold = 20 and miMentions = 5
+                    // That is, zero the count every 20 messages and if have more than 5 mentions
+                    // show it
+
+                    // emote size (1, 2 or 3x)
+                    size: "2x",
+
+                    // make it bounce like dvd stand-by animation
+                    dvdStand: false,
+                    dvdspeedX:"0.7",
+                    dvdspeedY:"0.7",
+                    // multiplied by Math.rando() to add to speed,
+                    // getting a less previsible path
+                    spRngMultip: 0.4,
+                    // do not clear canvas before redraw image, leaving the path
+                    dirtyCanvas: false,
+
+                    // auto connect afer page load
+                    connectOnLoad: false,
+
+                    // color theme (dark or light)
+                    theme: "dark",
+
+                    // save the last seen version number 
+                    whatsnewClosed: '1.0.0',
+
+                    // the last time you changed a option
+                    lastUpdated: Date.now(),
+
+                    // enable keyboard shortcuts
+                    enableHotkeys: true,
+
+                    // show/hide combo
+                    showCombo: false,
+                },
+
+                messageCount: 0,
+                messageCountTrs: 0,
+                showOptions: false,
+                infoHidden: false,
+                optionsDisplay: "none",
+                status: "disconnected",
+                comboGrowTimer: '',
+                comboGrowVal: 100,
+                comboValue: 0,
+                // emoteImgSrc: nothing,
+
+                // new version stuff
+                hasNews: false,
+                version: {
+                    v: '1.0.1b',
+                    date: '2021/Mar/18',
+
+                    // just for the meme idk.
+                    title: 'Now with 30% more artificial sugar!',
+
+                    // changes list/description
+                    info: [
+                        "+ Added this news card!",
+                        "+ Hotkeys:",
+                        "(can be disabled in options)",
+                        "____ 'Esc' to close popups (options and news)",
+                        "____ 'o' to show/hide options",
+                        "____ 'c' to connect/disconnect",
+                        "____ 'h' to show/hide connection info",
+                        "____ 'n' to show/hide news announcement card (this popup)",
+                        "+ C-C-Combo! the number of mentions of the emote in a sequence but ATTENTION: the combo is cancelled if ANY other emote appear in a sequence",
+                        "~ fixed miMentions and message zero treshold not doing what is supposed, please review your options if somethig isn't working",
+                        "+ Added version meta tag",
+                        "+ Saving the date and time when an option is changed",
+                        "+ Some more comments in the code, might help if want to know how it works",
+                        "-> Added webmanifest and Open Graph meta tags (enable search engines and social media to display a preview with title, image, description...), basically SEO",
+                        "~ fixed some issues in CSS with help of devTools/Edge issues",
+                        "+ updated some elements to complain with lighthouse report: https://googlechrome.github.io/lighthouse/viewer/?psiurl=https%3A%2F%2Fpp-show.vercel.app%2F&strategy=desktop",
+                        "~ changed some <a> elements to <l>, <l> does not exists and i don't want to mess with CSS now",
+                        "~ changed color #616161 to hsl(0deg,0,50%) and hsl(0deg 0% 16%) for dark and light themes to get better contrast",
+
+                    ],
+                },
+
+                // enumerators
+                enums: {
+                    themes: [
+                        "dark",
+                        "light"
+                    ],
+                    sizes: [
+                        "1x",
+                        "2x",
+                        "3x",
+                        "random"
+                    ],
+                },
+
+                // error messages
+                err:{
+                    type: "",
+                    msg: "",
+                    paintBorder: "",
+                    style:{
+                        color: "",
+                    }
+                },
+                blankErr: {},
+                
+                // URLs used to get data about channel, emotes and image
+                apisURL:{
+                    ffz:{
+                        // user to get badge data
+                        user: "https://api.frankerfacez.com/v1/user/{channel}",
+                        // user to get only channel data
+                        _user: "https://api.frankerfacez.com/v1/_user/{channel}",
+                    },
+                    bttv:{
+                        emotes: "https://api.betterttv.net/3/cached/users/twitch/{id}",
+                        imgCDN: "https://cdn.betterttv.net/emote/{id}/{size}",
+                        global: "https://api.betterttv.net/3/cached/emotes/global",
+                    }
+                },
+                
+                // last message of the chat
+                lastMessage: {
+                    user: "",
+                    msg: "",
+                    sub: false,
+                    color: "",
+                    style: {},
+                },
+                
+                emotes:{
+                    // all channel and global emotes (from bttv)
+                    raw: {},
+
+                    // a counter structure with emote name being the key
+                    // and amount of mention in value
+                    count:{},
+
+                    // list of emote names, to loop trough and check if message has it
+                    keys:[],
+
+                    // most mentioned item
+                    top:{
+                        code: "",
+                        id: "",
+                        imageType: "",
+                        count: 0
+                    },
+
+                    // last top emote
+                    last: '',
+
+                    // last emote of any message
+                    // ATTENTION: the combo is cancelled if ANY other emote appear in a sequence
+                    lastCode: '',
+                },
+
+                
+            },
+            computed: {
+                comboGrow(){
+                    
+                },
+                /**
+                 * @description get image from bttv cdn
+                 * 
+                 * @param {Object} emote emote object, must cnontain id
+                 * @param {String} size  image size, 1x, 2x or 3x (optional)
+                */
+                emoteImgSrc(){
+                    let emote = this.emotes.top;
+                    let id = emote.id || undefined;
+                    let size = this.options.size || "2x";
+
+                    this.comboGrowVal = 120 + emote.count
+                    if(this.comboGrowTimer) clearTimeout(this.comboGrowTimer);
+                    this.comboGrowTimer = setTimeout(() => {
+                        this.comboGrowVal = '100'
+                    }, 100);
+
+                    if(size == "random"){
+                        // random emote size
+                        size = this.enums.sizes[parseInt(Math.random() * 2)]
+                    }
+                    if(!id) {
+                        return nothing
+                    }
+
+                    if(this.options.miMentions == -1){
+                        let url = this.apisURL.bttv.imgCDN.replace('{id}', id).replace('{size}', size);
+                        this.emotes.last = emote
+                        return url
+                    }
+                    // check if has minimal mentions, if true, create the emote image URL
+                    else if(emote.count >= this.options.miMentions){
+                        let url = this.apisURL.bttv.imgCDN.replace('{id}', id).replace('{size}', size);
+                        this.emotes.last = emote
+                        return url;
+                        // return this.apisURL.bttv.imgCDN.replace('{id}', emote.id).replace('{size}', size)
+                    }
+                    else {
+                        return this.apisURL.bttv.imgCDN.replace('{id}', this.emotes.last.id).replace('{size}', size)
+                    }
+                },
+            },
+            created(){
+                // creatin a copy of error message to clean it if after an error
+                this.blankErr = JSON.stringify(this.err);
+
+                // this is just to prevent the options popup of showing when page loads
+                setTimeout(() => {
+                    // set the CSS display to block (is setted to none in CSS style tag)
+                    this.optionsDisplay = "block"
+                }, 100);
+
+
+                // get options from browser localStorage
+                let options = localStorage.getItem("tmie_sett")
+
+                // check if actually has something
+                if(typeof options !== "undefined" && options !== ""){
+                    let success = false;
+                    try {
+                        // try parse the data
+                        options = JSON.parse(options)
+                        success = true;
+                    } catch (error) {
+                        // if can't, log the error and replace what is saved with current/blank options 
+                        console.error(`Failed to parse localStorage options! `, error);
+                        localStorage.setItem('tmie_sett', JSON.stringify(this.options))
+                    }
+
+                    // if successfully parse, merge with current options
+                    if(success){
+                        this.options = {...this.options, ...options};
+                        dbug("options loaded: ", options)
+
+                        if(this.options.theme){
+                            document.body.setAttribute('class', this.options.theme)
+                            dbug("theme changed to: ", this.options.theme)
+                        }
+
+                        // set global debug varialble to storage value
+                        if(this.options.debug){
+                            debug = this.options.debug
+                        }
+
+                        // show news announdement if version isn't the samae saves in localStorage
+                        if(this.version.v != this.options.whatsnewClosed){
+                            this.hasNews = true;
+                            dbug(`new version! ${this.options.whatsnewClosed} -> ${this.version.v}[${this.version.date}]`)
+                        }
+                        
+
+                        // if isn't connected and connect on load is enabled, connect
+                        if(this.status == "disconnected" && this.options.connectOnLoad){
+                            dbug("connection on load is ENABLED, connecting...")
+
+                            setTimeout(() => {
+                                this.connector()
+                            }, 200);
+                        }
+                    }
+                } 
+
+                // if URL has #hash, use it as channel so you dont need to type and click connect
+                let hash = window.location.hash;
+                if (hash != ""){
+                    
+                    this.options.channel = hash.slice(1)
+                    dbug("page has #hash: ", this.options.channel)
+                    setTimeout(() => {
+                        if(this.status == "disconnected" && this.options.connectOnLoad){
+                            this.connector()
+                        }
+                    }, 200);
+                }
+
+                // disconnect the chat on page close
+                window.onbeforeunload = () => {
+                    if(this.status == "connected" || this.status == "connecting"){
+                        this.client.disconnect()
+                    }
+                }
+
+                // dvd-mode position, speed and thingies
+                let dvdMdEl = document.getElementById('dvd-like')
+                this.dvdMode = {
+                    dvdMdEl,
+                    img: document.createElement('img'),
+                    context: dvdMdEl.getContext('2d'),
+                    width: dvdMdEl.width,
+                    height: dvdMdEl.height,
+                    speed:{
+                        x: parseFloat(this.options.dvdspeedX),
+                        y: parseFloat(this.options.dvdspeedY),
+                    },
+                    pos:{
+                        x:0,
+                        y:0,
+                        direction: 'rb',
+                    }
+                }
+
+                // start dvd mode if was enable in options
+                if(this.status == "connected" && this.options.dvdStand){
+                    this.dvStart()
+                }
+
+                // keypress listener to do actions with keyboard
+                document.addEventListener('keydown', (e) => {
+                    let keyActions = {
+                        // close 
+                        'Escape': (e) => {
+                            if(this.showOptions){
+                                this.showOptions = false;
+                            }
+                            else if(this.hasNews){
+                                this.hasNews = false;
+                                this.saveLocal('whatsnewClosed', this.version.v);
+                            }
+                        },
+                        // o to show/hide options
+                        "o": (e) => {
+                            this.showOptions = !this.showOptions;
+                        },
+                        // c to connect/disconnect
+                        "c": (e) => {
+                            if(this.status == "connected"){
+                                if(confirm("hotkey pressed, disconnect?\n\nhotkeys available in options")){
+                                    this.connector();
+                                }
+                                else {
+                                    dbug("disconnect-by-hotkey canceled")
+                                }
+                            }
+                            else {
+                                this.connector();
+                            }
+                        },
+                        // show/hide connection info
+                        "h": (e) => {
+                            this.infoHidden = !this.infoHidden;
+                        },
+                        // news announcement card
+                        "n": (e) => {
+                            this.hasNews = !this.hasNews;
+                        },
+                    }
+
+                    if(!this.inputFocused && this.options.enableHotkeys){
+                        // get the pressed key and call the function
+                        let key = e.key;
+                        
+
+                        if(key in keyActions){
+                            keyActions[key](e)
+                            dbug(`key pressed: ${key}, action available`)
+                        }
+                        else{
+                            dbug(`key pressed: ${key}, action UN-available`)
+
+                        }
+                    }
+
+                })
+
+
+                
+            },
+            methods:{
+                inFocus(){
+                    this.inputFocused = true
+                },
+                inBlur(){
+                    this.inputFocused = false
+                },
+
+                /**
+                 * @description save options to browser localStorage
+                 * boolean values as string get parsed before saving
+                 * 
+                 * @param {String} key   property/options name
+                 * @param {String} value new value that will be assigned
+                */
+                saveLocal(key, value){
+                    dbug("option changed: ", key, value);
+                    this.options.lastUpdated = Date.now();
+                    // parse as boolean on true/false string
+                    if (value == "true" || value == "false") { value = ('' + value) == "true" }
+                    // if(key == "channel"){
+                    //     if(!confirm("Remember channel?")){
+                    //         return
+                    //     }
+                    // }
+                    let keySubActions = {
+                        // change theme
+                        "theme": (value) => {
+                            document.body.setAttribute('class', value)
+                        },
+                        // debug enable
+                        "debug": (value) => {
+                            debug = value
+                        },
+                        // asking if want to save the channel for next time
+                        "channel": (value) => {
+                            return;
+                            // remove line above to use, this is annoying when testing
+                            if(!confirm("Remember channel?")){
+                                return
+                            }
+                        },
+                        // start/restart if was already connected
+                        "dvdStand": (value) => {
+                            if(this.status == "connected" && value){
+                                this.dvStart()
+                            }
+                        },
+                        "whatsnewClosed": () => {
+                            this.hasNews = false
+                        },
+                    }
+
+                    if(key in keySubActions){
+                        keySubActions[key](value)
+                    }
+                   
+                    this.options[key] = value;
+                    localStorage.setItem('tmie_sett', JSON.stringify(this.options))
+                    
+                },
+                /**
+                 * @description get channel emotes and anonimously connect to chat with tmi
+                 * if already connect, will disconnect
+                */
+                async connector(){
+                    // reset error message
+                    this.err = JSON.parse(this.blankErr);
+
+                    // disconnect if is already connected or is connecting
+                    if(this.status  == "connected" || this.status  == "connecting") {
+                        if(this.client){
+                            this.client.disconnect()
+                        }
+                        this.status = "disconnected";
+                        return
+                    }
+
+                    // check if the channel is a text and has something
+                    if(typeof this.options.channel !== "string" && this.options.channel.length < 1){
+                        return new Error("Channel is invalid")
+                    }
+
+                    // get emoteList of the channel and wait for a response before continue
+                    let emoteList = await this.getEmoteList()
+                    this.emotes.raw = emoteList;
+                    
+                    // merge channel and shared emotes in one array/list
+                    emoteList = [...emoteList.channelEmotes, ...emoteList.sharedEmotes, ...emoteList.global]
+                    let count = {};
+                    let keys = [];
+
+                    // create a object with emote name as key and start with 0
+                    // ex.: {'OMEGALUL': 0, 'LUL': 0}
+                    // and add to list with only emote names, used to check if it is in the message later
+                    // ^^^^ user all 'i's  -> if, it, is, in lol
+                    for(let i = 0; i < emoteList.length; i++){
+                        let name = emoteList[i].code;
+
+                        count[name] = 0
+                        keys.push(name)
+                    }
+
+                    // copy the keys and count to other place, just to have it.
+                    this.emotes.keys = keys;
+                    this.emotes.count = count;
+                    
+
+
+                    this.client = new tmi.Client({
+                        // auto reconnect...
+                        connection: {reconnect: true},
+
+                        // you can put more than 1, but is not like you should or i recommend...
+                        channels: [ this.options.channel ]
+                    });
+
+                    this.client.connect();
+
+                    // Extra listeners for connection, used to show a word and color related
+                    this.client.on('disconnected', reason => {
+                        dbug(`Disconnected, reason: ${reason}`)
+                        this.status = "disconnected";
+
+                        // force showing information after disconnect and
+                        // hide again after 2 seconds
+                        if(this.infoHidden){
+                            this.infoHidden = false;
+                            setTimeout(() => {
+                                this.infoHidden = true;
+                            }, 2000);
+                        }
+
+                        // if was enable, toggle to stop the bouncing
+                        if(this.options.dvdStand){
+                            this.options.dvdStand = false
+                            setTimeout(() => {
+                                this.options.dvdStand = true
+                            }, 200);
+                        }
+                    })
+                    this.client.on("connecting", (address, port) => {
+                        dbug(`Connecting to server... ${address}:${port}`)
+                        this.status = "connecting";
+                    })
+                    this.client.on("connected", (address, port) => {
+                        dbug(`Connected to ${address}:${port}`)
+                        this.status = "connected";
+
+                        // start animation if is on
+                        if(this.options.dvdStand){
+                            setTimeout(() => {
+                                this.dvStart()
+                            }, 200);
+                        }
+                    })
+
+                    // message listener
+                    this.client.on('message', (channelName, userInfo, msg, self) => {
+
+                        dbug(`[${++this.messageCount}] ${userInfo['display-name']}: ${msg}`)
+                        this.messageCountTrs++;
+
+                        // prepare style for mod/sub
+                        let sumoStyle = {
+                            "padding": "2px 5px",
+                            "border-radius": "3px",
+                        }
+
+                        // put in last msg to display in screen
+                        this.lastMessage = {
+                            user: userInfo['display-name'],
+                            msg: msg,
+                            sub: userInfo['subscriber'],
+                            color: userInfo['color'],
+                        }
+
+                        // if is a mod/sub add the background to lastMessage
+                        if(userInfo["subscriber"] || userInfo["mod"]){
+                            // subscribe button color
+                            if(userInfo["subscriber"]) sumoStyle["background-color"] = "#9147ff20";
+
+                            // mod badge green color
+                            if(userInfo["mod"]) sumoStyle["background-color"] = "#00ad032";
+                            this.lastMessage.style = sumoStyle;
+                        }
+                        
+
+                        // transform the "message content" to an array ["message", "content"]
+                        spMsg = msg.split(" ");
+
+                        // for each emoteName in keys
+                        for(emoteName of keys){
+                            // check if the emote is in the message
+                            if(spMsg.includes(emoteName)){
+                                // add +1 to count, if reach treshold, zero it
+                                count[emoteName]++
+                                dbug(`has: ${emoteName} total: ${count[emoteName]}`)
+                            }
+                        }
+
+                        // sort the keys by checking wich emote has a higher number of mentions
+                        // and take the first in the list
+                        let topKey = keys.sort((a, b) => {
+                            if(count[a] > count[b]) return -1;
+                            else if(count[a] < count[b]) return 1;
+                        })[0]
+
+                        // check if the last emote is the same as the current and sum/reset the combo
+                        if(topKey == this.emotes.lastCode){
+                            this.comboValue++
+                        }
+                        else{
+                            this.comboValue = 0
+                        }
+
+                        // search in emoteList for the top emote
+                        this.emotes.top = emoteList.filter(el => el.code == topKey)[0]
+                        if(this.emotes.top){
+                            this.emotes.top.count = count[topKey]
+                        }
+
+                        // zero emote count if reach the message treshold
+                        // see options in the page
+                        if(this.options.msgTreshold != -1 && this.messageCountTrs >= this.options.msgTreshold){
+                            // loop trough emote names (keys) and set the emote count to 0
+                            // in emote count object
+                            dbug('counter cleared')
+                            for(let i = 0; i < keys.length; i++){
+                                count[keys[i]] = 0;
+                            }
+                            this.messageCountTrs = 0;
+                        }
+
+                        // name, count
+                        dbug(count[topKey], this.emotes.top)
+                        this.emotes.lastCode = topKey;
+                    })
+
+                    this.status = "connected";
+
+                },
+
+                /**
+                 * @description get channel info from FrankerFaceZ API,
+                 * then using twitch_id get channel emotes from bttv
+                 * 
+                 * @param {String} channel channel name
+                 * @returns {Object} bttv channel id (String), bots (Array), channel and shared emotes (Array)
+                 */
+                async getEmoteList(channel = this.options.channel){
+                    dbug("channel: ", channel);
+
+                    // reach URL, replacing with channel name and wait the response to continue
+                    let user = await fetch(`${this.apisURL.ffz._user.replace("{channel}", channel)}`, {
+                        method: 'GET'
+                    })
+
+                    // 200 -> All good
+                    if(user.status !== 200) {
+                        console.error(`Cant get user! http error code: ${user.status}`)
+                        this.err = {
+                            type: "user_err",
+                            msg:"Channel not found or can't get channel info",
+                            paintBorder: true,
+                            style:{
+                                "color": "var(--err)",
+                                "font-weight": "600",
+                                "font-size": "90%",
+                                'background-color': 'var(--err-half)'
+                            }
+                            
+                        };
+                        return new Error(`Cant get user! http error code: ${user.status}`)
+                    }
+
+                    // {"parseAs": "json"}
+                    user = await user.json();
+
+                    // idk, its inside itself...
+                    user = await user.user;
+                    
+                    dbug("user: ", user);
+                    if(typeof user === "undefined") return new Error("Cant parse user!");
+
+                    // get emotes of the channel
+                    let emoteList = await fetch(`${this.apisURL.bttv.emotes.replace("{id}", user.twitch_id)}`, {
+                        method: 'GET'
+                    })
+
+                    // get bttv global emotes
+                    let globalEmotes = await fetch(this.apisURL.bttv.global, {
+                        method: 'GET'
+                    })
+                    
+                    if(emoteList.status !== 200 || globalEmotes.status !== 200) {
+                        console.error(`Cant get emoteList! http error code: ${emoteList.status}`)
+                        this.err = {
+                            type: "emote_err",
+                            msg:"Can't get emote list",
+                            paintBorder: false,
+                            style:{
+                                "color": "var(--err)",
+                                "font-weight": "600",
+                                "font-size": "90%",
+                            }
+                            
+                        };
+                        return new Error(`Cant get emoteList! http error code: ${emoteList.status}`)
+                    }
+
+                    emoteList = await emoteList.json()
+                    // globalEmotes = await globalEmotes.json()
+
+                    emoteList.global = await globalEmotes.json()
+                    
+                    dbug("emotes: ", emoteList);
+                    return emoteList;
+                },
+            
+                /**
+                 * @description animate emote bouncing like dvd stand-by screen
+                 * 
+                 * with help of:
+                 * @see http://developpaper.com/using-canvas-to-make-a-dvd-standby-animation-implementation-code/
+                 * 
+                */
+                dvStart(){
+                    // take the proterties of the object as individual variables
+                    let {pos, context, width, height, speed, img} = this.dvdMode
+
+                    // it creates a hidden image element, this sets the source
+                    img.src = this.emoteImgSrc;
+
+                    // random speed multiplier, helps make the path less previsible
+                    speed.random = (Math.random() * this.options.spRngMultip);
+
+                    // directions (0,0 = right/top corner)
+                    dirs = {
+                        // to right/bottom
+                        "rb":() => {
+                            pos.x += speed.x + speed.random;
+                            pos.y += speed.y;
+                        },
+                        // to right/top
+                        "rt":() => {
+                            pos.x += speed.x;
+                            pos.y -= speed.y + speed.random;
+                        },
+                        // to left/bottom
+                        "lb":() => {
+                            pos.x -= speed.x;
+                            pos.y += speed.y + speed.random;
+                        },
+                        // to left/top
+                        "lt":() => {
+                            pos.x -= speed.x + speed.random;
+                            pos.y -= speed.y;
+                        },
+                    }
+
+                    // call the function in the current direction
+                    dirs[pos.direction]();
+
+                    // clear canvas
+                    if(!this.options.dirtyCanvas){
+                        context.clearRect(0, 0, width, height);
+                    }
+
+
+                    // change direction on collision based where the image is
+                    if(pos.y + img.height >= height){
+                        pos.direction = pos.direction.replace('b', 't')
+                    }
+
+                    if(pos.x + img.width >= width){
+                        pos.direction = pos.direction.replace('r', 'l')
+                    }
+
+                    if(pos.x < 0){
+                        pos.direction = pos.direction.replace('l', 'r')
+                    }
+
+                    if(pos.y < 0){
+                        pos.direction = pos.direction.replace('t', 'b')
+                    }
+
+                    // draw emote
+                    context.drawImage(img, pos.x, pos.y)
+
+                    // make it loop by calling itself if dvdMode is enabled
+                    if(this.options.dvdStand){
+                        window.requestAnimationFrame(this.dvStart)
+                    }
+                    else{
+                        context.clearRect(0, 0, width, height);
+                    }
+                },
+            
+            }
+        })
+    </script>
+</body>
+</html>

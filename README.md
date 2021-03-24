@@ -37,7 +37,6 @@ _these options are available to change directly in the code, look at the object 
 * Emotes not changing/appearing or it's too slow/fast? <br>
 	- Click on options and change 'minimal aount os mentions' and 'Zero the count...' to lower/higher numbers
 
-
 * 'DVD Mode'? <br>
 	- Bounce the image on screen sides, just like the dvd logo, but with emotes
 	- Click on options and mark the "DVD Stant-by bouncing" to enable
@@ -53,6 +52,21 @@ _these options are available to change directly in the code, look at the object 
 _can be disabled in options_
 
 _auto disabled if an input (text fields, checkbox...) is focused_
+
+
+* Other
+    * add a #hash with channel in URL, it will be setted as channel 
+        - if 'autoconnect' is enabled will get priority over options
+        - Usage:
+            `add #<channel> in URL`
+        - Example:
+            `https://pp-show.vercel.app/#gnitoon`
+
+    * code is a bit 'beginner' friendly, major part of JavaScript code commented/roughly explained
+
+    * If you need a older version go to /archive/ppShow[version].html
+        - Example: ´https://pp-show.vercel.app/archive/ppShow101b.html´
+        - _this is made to directly open without going back in commits or downloading release_
 
 ## DEMO video
 https://user-images.githubusercontent.com/80431627/110715426-fbfaa980-81e3-11eb-951f-cb03c3c89904.mp4

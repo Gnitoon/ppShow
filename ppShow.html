@@ -11,7 +11,7 @@
     <meta name="keywords" content="bttv%20emotes,emotes,top%20emote,most%20used%20emote,twitch%20chat%20most%20used%20emotes">
 
     <!-- older version available in /archive/ppShow<version>.html, example: .../archive/ppShow100.html -->
-    <meta name="version" content="1.0.1c">
+    <meta name="version" content="1.0.1d">
 
     <meta name='theme-color' content='#616161'>
 
@@ -318,6 +318,26 @@
         }
 
 
+
+        /* spinning animation */
+        @keyframes spinner {
+            from { transform: rotate(0); }
+            to   { transform: rotate(360deg); }
+        }
+        @-moz-keyframes spinner{
+            from { transform: rotate(0); }
+            to   { transform: rotate(360deg); }
+        }
+        @-webkit-keyframes spinner{
+            from { transform: rotate(0); }
+            to   { transform: rotate(360deg); }
+        }
+        .spinning {
+            animation: spinner 1500ms linear infinite;
+            -webkit-animation: spinner 1500ms linear infinite;
+            -moz-animation: spinner 1500ms linear infinite;
+        }
+
         #canvas-cont{
             position: absolute;
             top: 0;
@@ -326,7 +346,7 @@
             width: 99vw;
             z-index: -1;
         }
-        #dvd-like{
+        #dvd-like{  
             width: 100%;
             height: 100%;
         }
@@ -431,8 +451,6 @@
                                 min="-1"
                                 @change="saveLocal('miMentions', $event.target.value)"
 
-                                @focus="inFocus"
-                                @blur="inBlur"
 
                             >
                             <br>
@@ -453,8 +471,6 @@
                                 min="-1"
                                 @change="saveLocal('msgTreshold', $event.target.value)"
 
-                                @focus="inFocus"
-                                @blur="inBlur"
                             >
                             <br>
                             <i>this will help to use only most recent ones</i>
@@ -472,8 +488,6 @@
                                 v-model="options.theme"
                                 @change="saveLocal('theme', $event.target.value)"
 
-                                @focus="inFocus"
-                                @blur="inBlur"
                             >
                                 <option
                                     v-for="th of enums.themes"
@@ -495,8 +509,6 @@
                                 v-model="options.size"
                                 @change="saveLocal('size', $event.target.value)"
 
-                                @focus="inFocus"
-                                @blur="inBlur"
                             >
                                 <option
                                     v-for="th of enums.sizes"
@@ -514,8 +526,6 @@
                                 v-model="options.connectOnLoad"
                                 @change="saveLocal('connectOnLoad', $event.target.checked)"
 
-                                @focus="inFocus"
-                                @blur="inBlur"
                             >
                             <label for="autocon">Auto connect on open</label>
                             <br>
@@ -530,8 +540,6 @@
                                 v-model="options.dvdStand"
                                 @change="saveLocal('dvdStand', $event.target.checked)"
 
-                                @focus="inFocus"
-                                @blur="inBlur"
                             >
                             <label for="deb">DVD stand-by bouncing</label>
                             <br>
@@ -541,8 +549,6 @@
                                 v-model="options.dirtyCanvas"
                                 @change="saveLocal('dirtyCanvas', $event.target.checked)"
 
-                                @focus="inFocus"
-                                @blur="inBlur"
                             >
                             <label for="dirtyCanvas">Don't clear canvas</label>
                             <br>
@@ -558,8 +564,6 @@
                                 step="0.1"
                                 @change="saveLocal('dvdspeedX', $event.target.value)"
 
-                                @focus="inFocus"
-                                @blur="inBlur"
                             >
                             <input
                                 type="number"
@@ -571,8 +575,6 @@
                                 step="0.1"
                                 @change="saveLocal('dvdspeedY', $event.target.value)"
 
-                                @focus="inFocus"
-                                @blur="inBlur"
                             >
                             <br>
                             <i>RNG multiplier: Multiplied by a random number to change the direction a bit</i>
@@ -587,13 +589,38 @@
                                 step="0.1"
                                 @change="saveLocal('spRngMultip', $event.target.value)"
 
-                                @focus="inFocus"
-                                @blur="inBlur"
                             >
                             <br>
                             <i>make it like a good ol' dvd</i>
                         </div>
-                        
+
+                        <!-- spinner -->
+                        <div class="op-item">
+                            <input
+                                type="checkbox"
+                                id="spn"
+                                v-model="options.spin"
+                                @change="saveLocal('spin', $event.target.checked)"
+
+                            >
+                            <label for="spn">Spin/rotate emote</label>
+                            <br>
+                            <i>Spin Speed (in millisseconds, 1s = 1000ms)</i>
+                            <br>
+                            <input
+                                type="number"
+                                class="inputt"
+                                style="min-width: 80px; width: 80px"
+                                placeholder="spin duration"
+                                v-model="options.spinnTime"
+                                min="0"
+                                step="100"
+                                @change="saveLocal('spinnTime', $event.target.value)"
+
+                            >
+                            <br>
+                            <i>make it spin</i>
+                        </div>
 
                         <!-- hotkeys -->
                         <div class="op-item">
@@ -603,8 +630,6 @@
                                 v-model="options.enableHotkeys"
                                 @change="saveLocal('enableHotkeys', $event.target.checked)"
 
-                                @focus="inFocus"
-                                @blur="inBlur"
                             >
                             <label for="deb">Hotkeys</label>
                             <br>
@@ -623,8 +648,6 @@
                                 v-model="options.showCombo"
                                 @change="saveLocal('showCombo', $event.target.checked)"
 
-                                @focus="inFocus"
-                                @blur="inBlur"
                             >
                             <label for="deb">Combo value</label>
                             <br>
@@ -639,8 +662,6 @@
                                 v-model="options.debug"
                                 @change="saveLocal('debug', $event.target.checked)"
 
-                                @focus="inFocus"
-                                @blur="inBlur"
                             >
                             <label for="deb">Debug</label>
                             <br>
@@ -667,8 +688,11 @@
 
                         <br>                            
                         <br>
-                        <a class="subtitle">LICENSE:</a> <a href="https://opensource.org/licenses/MIT" target="_blank" class="link">MIT</a>
+                        <a class="subtitle">Want the code? take a look at the </a> <a rel="noreferrer" target="_blank" href="https://github.com/gnitoon/ppShow" class="link">Github repo!</a>
                         
+                        <br>
+                        <br>
+                        <a class="subtitle">LICENSE:</a> <a href="https://opensource.org/licenses/MIT" target="_blank" class="link">MIT</a>
                         <br>
                         <br>
                         <b class="subtitle">Credits:</b>
@@ -792,8 +816,6 @@
                 type="text"
                 v-model="options.channel"
                 @keypress.enter="connector"
-                @focus="inFocus"
-                @blur="inBlur"
                 @change="saveLocal('channel', $event.target.value)"
                 placeholder="channel"
                 :style="err.paintBorder ? {
@@ -819,9 +841,19 @@
 
         <!-- actual image, centered -->
         <div id="img-container">
-            <img v-if="!options.dvdStand" :src="emoteImgSrc" id="emoteIMG" :alt="emotes.top.code || 'emote'" :style="{
-                transform: 'scale('+ (+options.size.slice(0,1) + 1) +')'
-            }">
+            <img
+                v-if="!options.dvdStand"
+                :src="emoteImgSrc"
+                id="emoteIMG"
+                :alt="emotes.top.code || 'emote'"
+                :class="options.spin ? 'spinning' : ''"
+                :style="{
+                    transform: 'scale('+ (+options.size.slice(0,1) + 1) +')',
+                    'animation-duration': options.spinnTime + 'ms',
+                    '-moz-animation-duration': options.spinnTime + 'ms',
+                    '-webkit-animation-duration': options.spinnTime + 'ms',
+                }"
+            >
         </div>
 
         <!-- 
@@ -894,6 +926,12 @@
 
                     // show/hide combo
                     showCombo: false,
+
+                    // spin
+                    spin: false,
+
+                    // spin duration (in ms/millisseconds)
+                    spinnTime: 1000,
                 },
 
                 messageCount: 0,
@@ -908,34 +946,19 @@
                 // new version stuff
                 hasNews: false,
                 version: {
-                    v: '1.0.1c',
-                    date: '2021/Mar/19',
+                    v: '1.0.1d',
+                    date: '2021/Mar/23',
 
                     // just for the meme idk.
-                    title: 'Now with 30% more artificial sugar!',
+                    title: 'Stay onFocus so i can take a unBlurred pic.',
 
                     // changes list/description
                     info: [
-                        "+ Added this news card!",
-                        "+ FrankerFaceZ emotes support",
-                        "+ Hotkeys:",
-                        "(can be disabled in options)",
-                        "____ 'Esc' to close popups (options and news)",
-                        "____ 'o' to show/hide options",
-                        "____ 'c' to connect/disconnect",
-                        "____ 'h' to show/hide connection info",
-                        "____ 'n' to show/hide news announcement card (this popup)",
-                        "+ C-C-Combo! the number of mentions of the emote in a sequence but ATTENTION: the combo is cancelled if ANY other emote appear in a sequence",
-                        "~ fixed miMentions and message zero treshold not doing what is supposed, please review your options if somethig isn't working",
-                        "+ Added version meta tag",
-                        "+ Saving the date and time when an option is changed",
-                        "+ Some more comments in the code, might help if want to know how it works",
-                        "-> Added webmanifest and Open Graph meta tags (enable search engines and social media to display a preview with title, image, description...), basically SEO",
-                        "~ fixed some issues in CSS with help of devTools/Edge issues",
-                        "+ updated some elements to complain with lighthouse report: https://googlechrome.github.io/lighthouse/viewer/?psiurl=https%3A%2F%2Fpp-show.vercel.app%2F&strategy=desktop",
-                        "~ changed some <a> elements to <l>, <l> does not exists and i don't want to mess with CSS now",
-                        "~ changed color #616161 to hsl(0deg,0,50%) and hsl(0deg 0% 16%) for dark and light themes to get better contrast",
-
+                        `+ Spining emote (i heard "it's spinning there in the screen" in a stream...)`,
+                        "____ you can change spin speed in options",
+                        "- Removed onfocus and onblur events on input elements and added a condition to cheeck if the element is a input on keypress event",
+                        "+ some comment lines added to code",
+                        "+ Added github repository link in options, next to license",
                     ],
                 },
 
@@ -1092,6 +1115,8 @@
                     }
                 },
             },
+
+            // when the page runs the script and Vue starts
             created(){
                 // creatin a copy of error message to clean it if after an error
                 this.blankErr = JSON.stringify(this.err);
@@ -1201,6 +1226,8 @@
                     this.dvStart()
                 }
 
+
+
                 // keypress listener to do actions with keyboard
                 document.addEventListener('keydown', (e) => {
                     let keyActions = {
@@ -1242,10 +1269,11 @@
                         },
                     }
 
-                    if(!this.inputFocused && this.options.enableHotkeys){
+                    // console.log(e);
+                    // if(!this.inputFocused && this.options.enableHotkeys){
+                    if(e.target.tagName != "INPUT" && this.options.enableHotkeys){
                         // get the pressed key and call the function if have any action available
                         let key = e.key;
-                        
 
                         if(key in keyActions){
                             keyActions[key](e)

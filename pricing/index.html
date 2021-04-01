@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pepeLaugh - ppShow</title>
+    <script src="tmi.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+
+    <meta name="description" content="show most used emotes from any twitch channel">
+    <meta name="keywords" content="bttv%20emotes,emotes,top%20emote,most%20used%20emote,twitch%20chat%20most%20used%20emotes">
+
+    <!-- older version available in /archive/ppShow<version>.html, example: .../archive/ppShow100.html -->
+    <meta name="version" content="1.0.1d">
+
+    <meta name='theme-color' content='#616161'>
+
+    <!-- open graph tags -->
+    <meta property="og:title" content="ppShow - pricing">
+    <meta property="og:description" content="subscription prices">
+    <meta property="og:site_name" content="ppShow">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pp-show.vercel.app">
+    <meta property="og:image" content="https://pp-show.vercel.app/icon.png">
+    
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- font Source Sand pro -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap" rel="stylesheet">
+
+    <!-- BASE64 IMAGE AHEAD -->
+    <link
+        rel="shortcut icon"
+        href="data:image/png;base64,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"
+        type="image/png"
+    >
+
+    <style>
+        body{
+            font-family: 'Source Sans Pro', sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            color: aliceblue;
+            background-color: black;
+        }
+        .cont{
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="cont">
+        <img src="https://cdn.betterttv.net/frankerfacez_emote/346289/4" alt="widePeepoHappy">
+        <p>just kiddin</p>
+    </div>
+</body>
+</html>

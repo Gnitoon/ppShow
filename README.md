@@ -61,6 +61,11 @@ _auto disabled if an input (text fields, checkbox...) is focused_
             `add #<channel> in URL`
         - Example:
             `https://pp-show.vercel.app/#gnitoon`
+    * add ?hide=news,info to hide changelog popup
+    * add ?autoConnect=true to toggle autoConnect when page is loaded
+        * requires reload to take effect, you can remove it then
+    * to use both hide and autoConnect do it like this:
+        * ```https://pp-show.vercel.app?hide=news&autoConnect=true#channel```
 
     * code is a bit 'beginner' friendly, major part of JavaScript code commented/roughly explained
 

@@ -11,7 +11,7 @@
     <meta name="keywords" content="bttv%20emotes,emotes,top%20emote,most%20used%20emote,twitch%20chat%20most%20used%20emotes">
 
     <!-- older version available in /archive/ppShow<version>.html, example: .../archive/ppShow100.html -->
-    <meta name="version" content="1.0.1d">
+    <meta name="version" content="1.0.1e">
 
     <meta name='theme-color' content='#616161'>
 
@@ -946,19 +946,22 @@
                 // new version stuff
                 hasNews: false,
                 version: {
-                    v: '1.0.1d',
-                    date: '2021/Mar/23',
+                    v: '1.0.1e',
+                    date: '2022/Apr/28',
 
                     // just for the meme idk.
-                    title: 'Stay onFocus so i can take a unBlurred pic.',
+                    title: 'Quick, hide this before they arrive.',
 
                     // changes list/description
                     info: [
-                        `+ Spining emote (i heard "it's spinning there in the screen" in a stream...)`,
-                        "____ you can change spin speed in options",
-                        "- Removed onfocus and onblur events on input elements and added a condition to cheeck if the element is a input on keypress event",
-                        "+ some comment lines added to code",
-                        "+ Added github repository link in options, next to license",
+                        `+ Now you can hide this changelog popup and the little info thingie using URL Parameters`,
+                        "____ Add '?hide=news,info#channel' to hide both without having to click anywhere! (PS. hiding news does not mark as viewed)",
+                        "____ example: https://pp-show.vercel.app?hide=news#channel",
+                        "+ Now is also possible to toggle autoConnect from URL!",
+                        "____ to use just add ?autoConnect=true (or autoConnect=false) to URL to enable/disable",
+                        "____ use autoConnect=true to enable",
+                        "____ use autoConnect=false to disable",
+                        "____ IMPORTANT: reload the page to take effect, then you don't need to have 'autoConnect=true' always",
                     ],
                 },
 
@@ -1118,6 +1121,9 @@
 
             // when the page runs the script and Vue starts
             created(){
+                
+
+
                 // creatin a copy of error message to clean it if after an error
                 this.blankErr = JSON.stringify(this.err);
 
@@ -1182,9 +1188,83 @@
                     }
                 } 
 
+
+                // get query parameters (?something=hi&another=hello)
+                let params = window.location.search;
+                if(params != ""){
+                    // parse as URL
+                    let url = new URL(window.location.href);
+
+                    // get hide param to hide UI elements
+                    let hideP = url.searchParams.get("hide");
+                    dbug("URL has params");
+                    if(hideP != null){
+                        dbug("Hide elements from URL List...");
+                        let fns = {
+                            hide:{
+                                news: (value) => {
+                                    dbug("News hidden by URL");
+                                    this.hasNews = false;
+                                },
+                                info: (value) => {
+                                    dbug("Info hidden by URL");
+                                    this.infoHidden = true;
+                                },
+                            },
+                            params:{
+                                autoConnect: (value) => {
+                                    dbug("autoconnect received by URL");
+                                    this.saveLocal("connectOnLoad", value)
+                                }
+                            }
+                        }
+                        
+                        try {
+                            // split the list
+                            hideP = hideP.split(",");
+                            dbug("hiding...:", hideP);
+
+                            // check if is valid and hide
+                            for (let i = 0; i < hideP.length; i++) {
+                                if(hideP[i] in fns.hide){
+                                    fns.hide[hideP[i]]();
+                                }
+                                else{
+                                    dbug(`"${hideP[i]}" is not a valid element to hide`);
+                                    dbug(`available to hide: ${Object.keys(fns.hide)}`);
+                                }
+                            }
+                        } catch (error) {
+                            console.error("URL param 'hide' list is invalid\nplease check if has the following format: hide=<element1>,<element2>,<elementn>")
+                            dbug(`available to hide: ${Object.keys(fns.hide)}.`);
+                        }
+
+                        
+                        // toggles autoConnect, you have to load the page with the parameter than reload to take effect 
+                        let autoConnectURL = url.searchParams.get("autoConnect");
+                        if(/true|false/gi.test(autoConnectURL)){
+                            fns.params["autoConnect"](autoConnectURL.toLocaleLowerCase());
+                        }
+                    }
+                }
+                
                 // if URL has #hash, use it as channel so you dont need to type and click connect
                 let hash = window.location.hash;
                 if (hash != ""){
+                    // if(hash.lastIndexOf("?") > -1){
+                    //     hash = hash.split("?");
+
+                    //     // selective hide elements, with URL params, currently only news
+                    //     if(hash[1] == "hideElements=news"){
+                    //         this.hasNews = false;
+                    //         // this.saveLocal("whatsnewClosed", this.version.v);
+                    //     }
+
+                    //     this.options.channel = hash[0].slice(1)
+                    // }
+                    // else{
+
+                    // }
                     
                     this.options.channel = hash.slice(1)
                     dbug("page has #hash: ", this.options.channel)
@@ -1194,6 +1274,7 @@
                         }
                     }, 200);
                 }
+
 
                 // disconnect the chat on page close
                 window.onbeforeunload = () => {
